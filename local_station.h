@@ -3,14 +3,13 @@
 
 #include "station.h"
 
-#include <vector>
 #include <list>
 
 #include "train.h"
 
 class LocalStation : public Station{
 public:
-	LocalStation() = delete; /*Forse*/
+	//LocalStation() = delete; /*Forse*/
 	LocalStation(std::string name, int type, int distance);
 
 	// Possono esserci treni di solo transito
@@ -18,15 +17,15 @@ public:
 	// Ritorna una stringa contenente le infomrazioni sul binario e 
 	// sul tempo d'attesa tipo: "1, 5" -> binario uno e 5 minuti di attesa in parcheggio
 	// Se l'attesa è 0 allora il treno non deve fermarsi in parcheggio
-	std::string SendMsg(Train t, int time) override; 
+	std::string SendMsg(const Train& t, int time) override; 
 
 	std::string GetName() const override;
-	std::string GetType() const override;
-	std::string GetDistnace() const override;
-	std::string GetTrainsAhead() const override;
+	int GetType() const override;
+	int GetDistnace() const override;
+	std::vector<Train> GetTrainsAhead() const override;
 
-	void PrintDepartureTime(Train t, int time) const;
-	void PrintArrivalTime(Train t, int time) const;
+	void PrintDepartureTime(const Train& t, int time) const override;
+	void PrintArrivalTime(const Train& t, int time) const override;
 
 	 /*
 	 Funzioni private mancanti:
