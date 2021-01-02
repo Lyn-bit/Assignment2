@@ -12,8 +12,10 @@ class ReadFile{
       std::list<Train> Train_list;
    public:
       ReadFile();
-      std::list<Station> read_Station();
-      std::list<Train> read_Train();
+      //funzione che restituisce lista train giusta
+      //funzione che restituisce lista station giusta
+      std::list<Station> read_Station(); //read list from file.txt
+      std::list<Train> read_Train(); //read list from file.txt
       list<Station> get_list_Station(); //da implementare
       list<Train> get_list_Train(); //da implementare
       //correzione timetable; tolgo orari impossibili(quindi anche stazioni);
