@@ -15,9 +15,8 @@ public:
 	MainStation(std::string name, int type, int distance);
 
 	// Viene chiamata dal treno quando si trova a 20km dalla stazione
-	// Ritorna una stringa contenente le infomrazioni sul binario e 
-	// sul tempo d'attesa tipo: "1, 5" -> binario uno e 5 minuti di attesa in parcheggio
-	// Se l'attesa è 0 allora il treno non deve fermarsi in parcheggio
+	// Imposta direttamente le infomrazioni sul binario e 
+	// sul tempo d'attesa
 	void SendMsg(Train& t) override;
 	
 	std::string GetName() const override;
