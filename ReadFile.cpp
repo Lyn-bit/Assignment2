@@ -84,7 +84,7 @@ int ReadFile::get_num_of_mainstation()
     int count=0;
     for (auto p=Station_list.begin();p!=Station_list.end();p++)
     {
-        if ((*p).GetType()==0){
+        if (p->GetType()==0){
             count++;
         }
     }
@@ -96,7 +96,7 @@ int ReadFile::get_num_of_localstation()
     int count=0;
     for (auto p=Station_list.begin();p!=Station_list.end();p++)
     {
-        if ((*p).GetType()==1)
+        if (p->GetType()==1)
         {
             count++;
         }
@@ -110,12 +110,12 @@ list<Station> ReadFile::modify_station_list()
 {
     list<Station> temp {Station_list_orig.begin(),Station_list_orig.end()};
     auto p = temp.begin();
-    if ((*p).GetDistance()<20){
+    if (p->GetDistance()<20){
         temp.erase(p);
     }
     for(prev(p);p!=temp.end();p++)
     {
-        if(((*p).GetDistance()-(*prev(p)).GetDistance())<20)
+        if((p->GetDistance()-(prev(p)->GetDistance())<20)
         {
             temp.erase(p);
         }
@@ -132,36 +132,36 @@ list<Train> ReadFile::modify_train_list()
     //se ci sono meno orari, lancia un messaggio
     for(auto p=temp.begin();p!=temp.end();p++)
     {
-        if((*p).getType()==1)
+        if(p->getType()==1)
         {
-            if(((*p).getTimes()).size()>Station_list.size())
+            if((p->getTimes()).size()>Station_list.size())
             {
-                int i=((*p).getTimes()).size()-Station_list.size();
+                int i=(p->getTimes()).size()-Station_list.size();
                 //funzione della classe Train: rimuove gli ultimi i elementi del list times
-                //(*p).reset_timelist(i);
+                //p->reset_timelist(i);
             }
-            else if (((*p).getTimes()).size()<Station_list.size())
+            else if ((p->getTimes()).size()<Station_list.size())
             {
                 //ci sono meno orari di arrivo rispetto al numero di stazioni
                 cout << "Mancano degli orari di arrivo" << endl;
             }
         }
-        else if((*p).getType()==2||(*p).getType()==3)
+        else if(p->getType()==2||p->getType()==3)
         {
             int count=0;
             for (auto p=Station_list.begin();p!=Station_list.end();p++)
             {
-                if ((*p).GetType()==0){
+                if (p->GetType()==0){
                     count++;
                 }
             }
-            if(((*p).getTimes()).size()>count)
+            if((p->getTimes()).size()>count)
             {
-                int i=((*p).getTimes()).size()-Station_list.size();
+                int i=(p->getTimes()).size()-Station_list.size();
                 //funzione della classe Train: rimuove gli ultimi i elementi del list times
-                //(*p).reset_timelist(i);
+                //p->reset_timelist(i);
             }
-            else if (((*p).getTimes()).size()<count)
+            else if ((p->getTimes()).size()<count)
             {
                 //ci sono meno orari di arrivo rispetto al numero di stazioni
                 cout << "Mancano degli orari di arrivo" << endl;
