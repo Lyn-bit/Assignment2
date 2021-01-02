@@ -19,12 +19,15 @@ public:
     virtual std::list<int> getTimes() = 0;
     virtual int getSpeed() = 0;
     virtual int getPosition() = 0;
+    
     virtual Station getCurrentStation() = 0;
     virtual Station getNextStation() = 0;
     virtual void setWaitTime(int waitTime) = 0;
     virtual int getWaitTime() = 0;
     virtual void setTrack(int trackNumber) = 0;
     virtual int getTrack() = 0;
+    virtual void sendArrivalRequest() = 0;
+    virtual void sendDepartureRequest() = 0;
     
     
 };

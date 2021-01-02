@@ -23,12 +23,15 @@ public:
     std::list<int> getTimes() override;
     int getSpeed() override;
     int getPosition() override;
+    
     Station getCurrentStation() override;
     Station getNextStation() override;
     void setWaitTime(int waitTime) override;
     int getWaitTime() override;
     void setTrack(int trackNumber) override;
     int getTrack() override;
+    void sendArrivalRequest() override;
+    void sendDepartureRequest() override;
     
 private:
     int id;

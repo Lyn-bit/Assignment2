@@ -29,6 +29,8 @@ public:
     int getWaitTime() override;
     void setTrack(int trackNumber) override;
     int getTrack() override;
+    void sendArrivalRequest() override;
+    void sendDepartureRequest() override;
     
 private:
     int id;
