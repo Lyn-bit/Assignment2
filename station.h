@@ -3,11 +3,12 @@
 
 #include <string>
 #include <vector>
+#include <math.h>
 
 #include "train.h"
 
 class Station {
-	virtual std::string SendMsg(const Train& t, int time) = 0;
+	virtual void SendMsg(Train& t) = 0;
 	virtual std::string GetName() const = 0;
 	virtual int GetType() const = 0;
 	virtual int GetDistnace() const = 0;
