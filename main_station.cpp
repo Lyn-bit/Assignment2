@@ -119,6 +119,23 @@ bool MainStation::DepartureRequest(Train& t)
 	}
 }
 
+void MainStation::Update()
+{
+	// Decrementa il contatore del tempo passato nei binari
+	for (int i = 0; i < 4; i++)
+		if (tracks_state_[i] > 0)
+			tracks_state_[i] -= 1;
+	
+	// Rimuovono i treni che si trovano nella stazione successiva
+	for (auto i = trains_ahead_east_.begin(); i != trains_ahead_east_.end(); i++)
+		if (i->GetPos() <= (GetNext(*this).GetDistance() + 5))
+			trains_ahead_east_.erase(i);
+
+	for (auto i = trains_ahead_weast_.begin(); i != trains_ahead_weast_.end(); i++)
+		if (i->GetPos() <= (GetPrev(*this).GetDistance() - 5))
+			trains_ahead_weast_.erase(i);
+}
+
 void MainStation::PrintDepartureTime(const Train& t, int time) const {}
 void MainStation::PrintArrivalTime(const Train& t, int time) const {}
 
