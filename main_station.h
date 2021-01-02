@@ -10,6 +10,8 @@
 
 #include "train.h"
 
+//#include "Controll.h"  //debug
+
 class MainStation : public Station {
 public:
 	MainStation(std::string name, int type, int distance);
@@ -23,10 +25,13 @@ public:
 	// in caso il treno non possa ancora partire aggiunge il ritardo a se
 	// se stesso e ai treni che devono arrivare sul suo binario
 	bool DepartureRequest(Train& t) override;
-	
+	// viene chiamato ogni incremento del contatore. 
+	// Aggiorna le variabili che dipendono dal tempo
+	void Update() override;
+
 	std::string GetName() const override { return name_; }
 	int GetType() const override { return type_; }
-	int GetDistnace() const override { return distance_; }
+	int GetDistance() const override { return distance_; }
 	
 	// Ritorna una lista dei treni che si trovano tra questa stazione 
 	// e la succesiva/precedente in base al verso
@@ -52,8 +57,6 @@ private:
 
 	
 	/*
-	Funzione che riceve il contatore e aggiorna ogni minuti le variabili
-	da aggiornare (tipo tracks_state_, trains_ahead_east/weast_)
 	 ...
 	 */
 
