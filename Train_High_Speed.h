@@ -7,7 +7,7 @@
 
 #include <list>
 
-#include "Station.h"
+//#include "Station.h"
 
 class Train_High_Speed
 {
@@ -15,22 +15,39 @@ public:
     Train_High_Speed(int numero, int verso, int direzione, std::list<int> orari);
     ~Train_High_Speed();
     
-    int getMaxSpeed() override;
-    int getMaxWait() override;
-    int getId() override;
-    int getVerse() override;
-    int getType() override;
-    std::list<int> getTimes() override;
-    int getSpeed() override;
-    int getPosition() override;
-    Station getCurrentStation() override;
-    Station getNextStation() override;
-    void setWaitTime(int waitTime) override;
-    int getWaitTime() override;
-    void setTrack(int trackNumber) override;
-    int getTrack() override;
-    void sendArrivalRequest() override;
-    void sendDepartureRequest() override;
+    int getMaxSpeed() override; //metodo che ritorna la velocità massima del treno
+    int getMaxWait() override; //metodo che ritorna il tempo d'attesa massimo del treno
+    int getId() override; //metodo che ritorna l'id del treno
+    int getVerse() override; //metodo che ritorna il verso del treno
+    int getType() override; //metodo che ritorna il tipo di treno
+    std::list<int> getTimes() override; //metodo che ritorna la lista degli orari
+    int getSpeed() override; //metodo che ritorna la velocità del treno
+    int getPosition() override; //metodo che ritorna la posizione del treno
+    
+    //metodo che ritorna la stazione in cui il treno si trova al momento
+    std::string getCurrentStation() override;
+    
+    //metodo che ritorna la prossima stazione in cui il treno dovrà andare
+    std::string getNextStation() override;
+    
+    //metodo che imposta il tempo di attesa del treno
+    void SetWaitTime(int waitTime) override;
+    //metodo che ritorna il tempo di attesa del treno
+    int GetWaitTime() override;
+    
+    //metodo che imposta il binario in cui il treno dovrà andare
+    void SetTrack(int trackNumber) override;
+    //metodo che ritorna il binario in cui il treno dovrà andare
+    int GetTrack() override;
+    
+    //metodo che manda una richiesta d'arrivo alla stazione
+    void SendArrivalRequest() override;
+    
+    //metodo che manda una richiesta di partenza alla stazione
+    void SendDepartureRequest() override;
+    
+    
+    void resize_timeList() override;
     
 private:
     int id;
@@ -41,6 +58,8 @@ private:
     int position;
     const int MAX_SPEED = 240;
     const int MAX_WAIT = 15;
+    int wait;
+    int track;
 };
 
 #endif // TRAIN_HIGH_SPEED_H
