@@ -2,16 +2,16 @@
 
 #include "main_station.h"
 
+#include "Controll.h" //DEBUG
+
 #define PARK_TO_STATION_TIME 4
 
 using namespace std;
 
 MainStation::MainStation(string name, int type, int distance) :
-	name_{name}, type_{type}, distance_{distance}, trains_in_station_{},
+	name_{name}, type_{type}, distance_{distance}, trains_in_station_{}, tracks_state_{0, 0, 0, 0},
 	trains_ahead_east_{}, trains_ahead_weast_{}, parked_trains_east_{}, parked_trains_weast_{}
 {
-	for (int i = 0; i < 4; i++)
-		tracks_state_[i] = 0;
 }
 
 bool operator==(const MainStation& s_one, const MainStation& s_two)
@@ -128,11 +128,11 @@ void MainStation::Update()
 	
 	// Rimuovono i treni che si trovano nella stazione successiva
 	for (auto i = trains_ahead_east_.begin(); i != trains_ahead_east_.end(); i++)
-		if (i->GetPos() <= (GetNext(*this).GetDistance() + 5))
+		if (i->GetPos() <= (f::GetNext(*this).GetDistance() + 5))
 			trains_ahead_east_.erase(i);
 
 	for (auto i = trains_ahead_weast_.begin(); i != trains_ahead_weast_.end(); i++)
-		if (i->GetPos() <= (GetPrev(*this).GetDistance() - 5))
+		if (i->GetPos() <= (f::GetPrev(*this).GetDistance() - 5))
 			trains_ahead_weast_.erase(i);
 }
 
@@ -263,7 +263,7 @@ bool MainStation::ComparePriority(const Train& t1, const Train& t2) const
 
 int TimeToFree(const list<Train>& trains_ahead, const MainStation& s)
 {
-	int pos = abs(s.GetDistnace() - trains_ahead.back().GetPos());
+	int pos = abs(s.GetDistance() - trains_ahead.back().GetPos());
 
 	int s_km{ 0 };
 	int f_km{ 5 };

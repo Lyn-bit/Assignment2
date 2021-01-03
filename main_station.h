@@ -6,15 +6,16 @@
 #include "station.h"
 
 #include <utility>
-#include <algorithm>
+#include <algorithm>//
 
 #include "train.h"
 
-//#include "Controll.h"  //debug
 
 class MainStation : public Station {
 public:
 	MainStation(std::string name, int type, int distance);
+
+	/* get next train */
 
 	// Viene chiamata dal treno quando si trova a 20km dalla stazione
 	// Imposta direttamente le infomrazioni sul binario e 
@@ -32,6 +33,7 @@ public:
 	std::string GetName() const override { return name_; }
 	int GetType() const override { return type_; }
 	int GetDistance() const override { return distance_; }
+
 	
 	// Ritorna una lista dei treni che si trovano tra questa stazione 
 	// e la succesiva/precedente in base al verso
@@ -54,7 +56,6 @@ private:
 	// per poter usufurire del binario piu veloce e il numero di binario
 	// e le ultime 2 di quello più lento
 	std::vector<int> TrackStatus(const Train& t) const;
-
 	
 	/*
 	 ...
@@ -72,7 +73,7 @@ private:
 	// VERSO "0"
 	//
 	// SECONDA e TERZA cella uguale a prime due ma per il verso opposto
-	int tracks_state_ [4];
+	int tracks_state_[4];
 	// Lista dei treni che sono in stazione
 	std::list<Train> trains_in_station_;
 	// Lista dei treni che si trovano dalla stazione ai
