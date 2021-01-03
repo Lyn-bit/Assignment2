@@ -15,21 +15,22 @@
 class Station 
 {
 protected:
+	
+public:
 	Station(std::string name, int type, int distance) :
 		name_{ name }, type_{ type }, distance_{ distance }
 	{
 	}
-private:
-	virtual void ArrivalRequest(Train& t) = 0;
-	virtual bool DepartureRequest(Train& t) = 0;
-	virtual std::string GetName() const = 0;
-	virtual int GetType() const = 0;
-	virtual int GetDistance() const = 0;
-	virtual void Update() = 0;
-	virtual std::list<Train> GetTrainsAhead(int verse) const = 0;
+	virtual void ArrivalRequest(Train& t);
+	virtual bool DepartureRequest(Train& t);
+	virtual std::string GetName() const;
+	virtual int GetType() { return type_; }
+	virtual int GetDistance() const;
+	virtual void Update();
+	virtual std::list<Train> GetTrainsAhead(int verse);
 
-	virtual void PrintDepartureTime(const Train& t, int time) const = 0;
-	virtual void PrintArrivalTime(const Train& t, int time) const = 0;
+	virtual void PrintDepartureTime(const Train& t, int time);
+	virtual void PrintArrivalTime(const Train& t, int time);
 private:
 	std::string name_;
 	int type_;
