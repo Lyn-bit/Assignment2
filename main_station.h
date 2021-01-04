@@ -13,9 +13,24 @@
 
 class MainStation : public Station {
 public:
-	MainStation(std::string name, int type, int distance);
+	/*
+	Differenziare stazione origine e capolinea!!!!!
+	Variabile int che :
+		vale 1 se è stazione d'origine
+		2 se capolinea
+		-1 per tutte le altre
+	*/
 
-	/* get next train */
+
+	MainStation(std::string name, int type, int distance, const ReadFile &);
+	
+	/*Forse*/
+	MainStation(const MainStation& s) = default;
+	MainStation(MainStation&& s) = default;
+
+	const MainStation& operator=(const MainStation& s) = delete;
+	const MainStation& operator=(const MainStation&& s) = delete;
+	////////
 
 	// Viene chiamata dal treno quando si trova a 20km dalla stazione
 	// Imposta direttamente le infomrazioni sul binario e 
@@ -29,6 +44,11 @@ public:
 	// viene chiamato ogni incremento del contatore. 
 	// Aggiorna le variabili che dipendono dal tempo
 	void Update() override;
+	// Ritorna un intero che indica la distanza dal 
+	// origine del treno che ha davanti.
+	// Ritorna -1 se non ci sono treni
+	int GetNextTrain(const Train& t) const override;
+
 
 	std::string GetName() const override { return name_; }
 	int GetType() const override { return type_; }
@@ -65,7 +85,9 @@ private:
 	std::string name_;
 	int type_;
 	int distance_;
-
+	// 1 se originie, 2 se capolinea, -1 per le altre
+	int position_;
+	const ReadFile& read_file_;
 	// Array di interi di dimensione fissa con:
 	// PRIMA e SECONDA cella contengono il tempo in minuti che mancano alla 
 	// partenza per i treni che si trovano ai binari 1 e 2. 
@@ -83,8 +105,6 @@ private:
 	// weast ->
 	std::list<Train> trains_ahead_east_;
 	std::list<Train> trains_ahead_weast_;
-
-
 	//Sono strutturate in modo da avere un treno con binario 0 e 1 alternati
 	//
 	// Lista dei treni parcheggiati verso 0 ->
@@ -99,6 +119,11 @@ bool operator==(const MainStation& s_one, const MainStation& s_two);
 // Ritrona i minuti, del binario con verso in base alla lista "t",
 // che mancano che il treno che c'è davanti sia a più di 10km
 int TimeToFree(const std::list<Train>& t, const MainStation& s);
+std::string FormatTime(int n);
+
+/// ///////////
+const Station* GetNext(const Station* t);
+
 
 #endif // !main_station_h
 

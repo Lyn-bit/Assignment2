@@ -1,3 +1,5 @@
+// Stojna Lorei
+
 #ifndef local_station_h
 #define local_station_h
 
@@ -10,19 +12,20 @@
 class LocalStation : public Station{
 public:
 	//LocalStation() = delete; /*Forse*/
-	LocalStation(std::string name, int type, int distance);
+	LocalStation(std::string name, int type, int distance, const ReadFile&);
 
 	// Possono esserci treni di solo transito
 	// Viene chiamata dal treno quando si trova a 20km dalla stazione
 	// Ritorna una stringa contenente le infomrazioni sul binario e 
 	// sul tempo d'attesa tipo: "1, 5" -> binario uno e 5 minuti di attesa in parcheggio
 	// Se l'attesa è 0 allora il treno non deve fermarsi in parcheggio
-	std::string SendMsg(const Train& t, int time) override; 
+	void ArrivalRequest(Train& t) override;
+	bool DepartureRequest(Train& t) override;
 
 	std::string GetName() const override;
 	int GetType() const override;
-	int GetDistnace() const override;
-	std::vector<Train> GetTrainsAhead() const override;
+	int GetDistance() const override;
+	std::list<Train> GetTrainsAhead(int verse) const override;
 
 	void PrintDepartureTime(const Train& t, int time) const override;
 	void PrintArrivalTime(const Train& t, int time) const override;
@@ -55,14 +58,14 @@ private:
 	// QUINTA cella (stato del binario di transito), VERSO 0
 	//
 	// SESTA cella, come la quinta ma per il verso opposto
-	int tracks_state [6];
+	int tracks_state_ [6];
 	// Lista dei treni che sono in stazione
-	std::list<Train> trains_in_station;
+	std::list<Train> trains_in_station_;
 	// Lista dei treni che si trovano dalla stazione ai
 	// 20km prima della stazione successiva
-	std::list<Train> trains_ahead;
+	std::list<Train> trains_ahead_;
 	// Lista dei treni parcheggiati
-	std::vector<Train> paked_trains;
+	std::vector<Train> paked_trains_;
 
 	/*
 	Variabili private che forse servono:
