@@ -44,8 +44,8 @@ class ReadFile{
         std::list<Station*> get_main_station_list() const;
 
         //funzioni che restituisco la stazione dopo/prima ricevento come un parametro Station
-        Station* nextStation(Station* s);
-        Station* prevStation(Station* s);
+        Station* nextStation(Station* s) const;
+        Station* prevStation(Station* s) const;
       
     private:
         //liste originali, senza modifiche
@@ -57,8 +57,8 @@ class ReadFile{
         std::list<Train*> Train_list;
 
         //string che memorizza la stazione di partenza
-        string origin_Station;
-        string last_Station;
+        std::string origin_Station;
+        std::string last_Station;
 
 };
 

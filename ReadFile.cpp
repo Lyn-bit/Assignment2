@@ -569,7 +569,7 @@ list<Station*> ReadFile::get_main_station_list() const
 
 //funzioni che restituisco la stazione dopo/prima ricevento come un parametro Station
 //ritorna nullptr nei casi estremi
-Station* ReadFile::nextStation(Station* s)
+Station* ReadFile::nextStation(Station* s) const
 {
     if (s->GetName()==get_last_Station().GetName())
     {
@@ -584,7 +584,7 @@ Station* ReadFile::nextStation(Station* s)
         }
     }
 }
-Station* ReadFile::prevStation(Station* s)
+Station* ReadFile::prevStation(Station* s) const
 {
     if (s->GetName()==get_first_Station().GetName())
     {
