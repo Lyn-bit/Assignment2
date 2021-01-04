@@ -2,7 +2,7 @@
 
 #include "main_station.h"
 
-#include "Controll.h" //DEBUG
+//#include "Controll.h" //DEBUG
 
 #define PARK_TO_STATION_TIME 4
 
@@ -33,7 +33,7 @@ void MainStation::ArrivalRequest(Train& t)
 	*/
 
 	vector<Train>& trains = parked_trains_east_;
-	trains = (t.GetVerse() == 0) ? trains = parked_trains_east_ : trains = parked_trains_weast_;
+	trains = (t.getVerse() == 0) ? trains = parked_trains_east_ : trains = parked_trains_weast_;
 
 	int estimated_arrival_time = GetEstimatedArrivalTime(t);
 	vector<int> track_info = TrackStatus(t);
@@ -66,10 +66,10 @@ bool MainStation::DepartureRequest(Train& t)
 	/*devo gestire i casi che la richiesta venga col trenp
 	che si ttrova in stazione o in parcheggio*/
 	vector<Train>& parked_trains = parked_trains_east_;
-	if (t.GetVerse() == 0) { parked_trains = parked_trains_weast_; }
+	if (t.getVerse() == 0) { parked_trains = parked_trains_weast_; }
 
 	list<Train>& trains_ahead = trains_ahead_east_;
-	if (t.GetVerse() == 0) { trains_ahead = trains_ahead_weast_; }
+	if (t.getVerse() == 0) { trains_ahead = trains_ahead_weast_; }
 
 	// Se si trova in parcheggio devo vedere se il suo binario è stato liberato
 	if (t.GetState() == "p")
@@ -83,7 +83,7 @@ bool MainStation::DepartureRequest(Train& t)
 			trains_in_station_.push_back(parked_trains[1]);
 			parked_trains.erase(parked_trains.begin());
 			// Controlla se è stazione origine o capolinea 
-			if (t.GetVerse() == 0 and position_ != 2 or t.GetVerse() == 1 and position_ != 1)
+			if (t.getVerse() == 0 and position_ != 2 or t.getVerse() == 1 and position_ != 1)
 				trains_ahead.push_back(t);
 			return true;
 		}
@@ -92,7 +92,7 @@ bool MainStation::DepartureRequest(Train& t)
 		{
 			int delay = t.GetTimeLeft() + tracks_state_[t.GetTrack()];
 			t.SetWaitTime(delay);
-			for (int i = t.GetVerse(); i < parked_trains.size(); i += 2)
+			for (int i = t.getVerse(); i < parked_trains.size(); i += 2)
 				parked_trains[i].SetWaitTime(parked_trains[i].GetTimeLeft() + delay);
 			return false;
 		}
@@ -107,13 +107,13 @@ bool MainStation::DepartureRequest(Train& t)
 			if (i->GetTrack() == t.GetTrack() and ComparePriority(*i, t))
 			{
 				int delay = i->GetTimeLeft();
-				for (int i = t.GetVerse(); i < parked_trains.size(); i += 2)
+				for (int i = t.getVerse(); i < parked_trains.size(); i += 2)
 					parked_trains[i].SetWaitTime(parked_trains[i].GetTimeLeft() + delay);
 				return false;
 			}
 		// Se non può partire perche ci sono treni davanti aumnetare il ritardo del treno e di quelli
 		// che lo precedono nel parcheggio
-		if (abs(distance_ - trains_ahead.back().GetPos()) < 10)
+		if (abs(distance_ - trains_ahead.back().getPosition()) < 10)
 		{
 			// Controllo se laltro treno h auna priorita piu alta
 			
@@ -122,7 +122,7 @@ bool MainStation::DepartureRequest(Train& t)
 			t.SetWaitTime(t.GetTimeLeft() + delay);
 			tracks_state_[t.GetTrack()] += delay;
 			// aggiungo il delay ai treni che hanno lo stesso binario
-			for (int i = t.GetVerse(); i < parked_trains.size(); i+=2)
+			for (int i = t.getVerse(); i < parked_trains.size(); i+=2)
 				parked_trains[i].SetWaitTime(parked_trains[i].GetTimeLeft() + delay);
 			return false;
 		}
@@ -132,7 +132,7 @@ bool MainStation::DepartureRequest(Train& t)
 			tracks_state_[t.GetTrack()] = 0;
 			trains_in_station_.remove(t);
 			// Controlla se è stazione origine o capolinea 
-			if (t.GetVerse() == 0 and position_ != 2 or t.GetVerse() == 1 and position_ != 1)
+			if (t.getVerse() == 0 and position_ != 2 or t.getVerse() == 1 and position_ != 1)
 				trains_ahead.push_back(t);
 			return true;
 		}
@@ -155,23 +155,23 @@ void MainStation::Update()
 	if (position_ == 1) // Se stazione origine
 	{
 		for (auto i = trains_in_station_.begin(); i != trains_in_station_.end(); i++)
-			if (tracks_state_[i->GetTrack()] == 0 and i->GetVerse() == 1)
+			if (tracks_state_[i->GetTrack()] == 0 and i->getVerse() == 1)
 				trains_in_station_.erase(i);
 	}
 	else if (position_ == 2) // Se stazione capolinea
 	{
 		for (auto i = trains_in_station_.begin(); i != trains_in_station_.end(); i++)
-			if (tracks_state_[i->GetTrack()] == 0 and i->GetVerse() == 0)
+			if (tracks_state_[i->GetTrack()] == 0 and i->getVerse() == 0)
 				trains_in_station_.erase(i);
 	}
 	
 	// Rimuovono i treni partiti che si trovano gia' nella stazione successiva
 	for (auto i = trains_ahead_east_.begin(); i != trains_ahead_east_.end(); i++)
-		if (i->GetPos() <= (GetNext(this)->GetDistance() + 5))
+		if (i->getPosition() <= (GetNext(this)->GetDistance() + 5))
 			trains_ahead_east_.erase(i);
 
 	for (auto i = trains_ahead_weast_.begin(); i != trains_ahead_weast_.end(); i++)
-		if (i->GetPos() <= (GetPrev(this)->GetDistance() - 5))
+		if (i->getPosition() <= (GetPrev(this)->GetDistance() - 5))
 			trains_ahead_weast_.erase(i);
 }
 
@@ -183,25 +183,25 @@ int MainStation::GetNextTrain(const Train& t) const
 	*
 	*/
 	list<Train> trains = trains_ahead_east_;
-	if (t.GetVerse() == 0) { trains = trains_ahead_weast_; }
+	if (t.getVerse() == 0) { trains = trains_ahead_weast_; }
 
 	auto it_next_train = find(trains.begin(), trains.end(), t);
 	if (it_next_train == trains.end())
 		return -1;
 	else
-		return it_next_train->GetPos();
+		return it_next_train->getPosition();
 }
 
 void MainStation::PrintDepartureTime(const Train& t, int time) const 
 {
 	/*Non completo( manca caso ultima stazione)*/
-	string next_station = (t.GetVerse() == 0) ? GetNext(this)->GetName() : GetPrev(this)->GetName();
+	string next_station = (t.getVerse() == 0) ? GetNext(this)->GetName() : GetPrev(this)->GetName();
 	
 	string train_type;
-	if (t.GetType() == 1) { train_type = "Regionale"; }
-	else if (t.GetType() == 2) { train_type = "Alta Velocita'"; }
+	if (t.getType() == 1) { train_type = "Regionale"; }
+	else if (t.getType() == 2) { train_type = "Alta Velocita'"; }
 	else { train_type = "Alta Velocita' Super"; }
-	cout << "Il treno " + train_type + " numero " << t.GetId() << " diretto a " + next_station << " e' in partenza dal binario " << t.GetTrack() << "\t" + FormatTime(time) << endl;
+	cout << "Il treno " + train_type + " numero " << t.getId() << " diretto a " + next_station << " e' in partenza dal binario " << t.GetTrack() << "\t" + FormatTime(time) << endl;
 }
 void MainStation::PrintArrivalTime(const Train& t, int time) const 
 {
@@ -216,7 +216,7 @@ vector<int> MainStation::TrackStatus(const Train& t) const
 	* capolinea/origine
 	*
 	*/
-	int verse = t.GetVerse();
+	int verse = t.getVerse();
 	const vector<Train> *trains = &parked_trains_east_;
 	trains = (verse == 0) ? trains = &parked_trains_east_ : trains = &parked_trains_weast_;
 	
@@ -256,8 +256,8 @@ vector<int> MainStation::TrackStatus(const Train& t) const
 
 int MainStation::GetEstimatedArrivalTime(const Train& t) const
 {
-	int position = t.GetPos();
-	int speed = t.GetMaxSpeed();
+	int position = t.getPosition();
+	int speed = t.getMaxSpeed();
 
 	// Il tempo minimo d'arrivo
 	// (se per esempio ha un treno davanti che va più lento
@@ -279,7 +279,7 @@ void MainStation::AddParkedTrain(Train& t)
 	*
 	*/
 	vector<Train>& trains = parked_trains_east_;
-	trains = (t.GetVerse() == 0) ? trains = parked_trains_east_ : trains = parked_trains_weast_;
+	trains = (t.getVerse() == 0) ? trains = parked_trains_east_ : trains = parked_trains_weast_;
 
 	int estimated_arrival = GetEstimatedArrivalTime(t);
 	// Controlla solo il binario più veloce
@@ -304,7 +304,7 @@ void MainStation::AddParkedTrain(Train& t)
 	int wait_time{ 0 };
 	int i = TrackStatus(t)[1] % 2;
 	for (; i < track or i < trains.size(); i += 2)
-		wait_time += trains[track].GetWaitTime() + 5;
+		wait_time += trains[track].GetTimeLeft() + 5;
 	t.SetWaitTime(wait_time);
 
 	// Aggiorno l'attesa per gli eventuali treni che sono stati spostati 
@@ -314,7 +314,7 @@ void MainStation::AddParkedTrain(Train& t)
 	if (track < trains.size())
 		for (; track < trains.size(); track += 2)
 		{
-			int prev_time = trains[track].GetWaitTime();
+			int prev_time = trains[track].GetTimeLeft();
 			trains[track].SetWaitTime(prev_time + time_to_add);
 		}
 	else
@@ -329,10 +329,10 @@ void MainStation::AddParkedTrain(Train& t)
 // False altrimenti
 bool MainStation::ComparePriority(const Train& t1, const Train& t2) const
 {
-	if (t2.GetWaitTime() >= t2.GetMaxWait())
+	if (t2.GetTimeLeft() >= t2.getMaxWait())
 		return false;
 
-	if (t1.GetType() > t2.GetType())
+	if (t1.getType() > t2.getType())
 		return true;
 
 	return false;
@@ -342,7 +342,7 @@ bool MainStation::ComparePriority(const Train& t1, const Train& t2) const
 
 int TimeToFree(const list<Train>& trains_ahead, const MainStation& s)
 {
-	int pos = abs(s.GetDistance() - trains_ahead.back().GetPos());
+	int pos = abs(s.GetDistance() - trains_ahead.back().getPosition());
 
 	int s_km{ 0 };
 	int f_km{ 5 };
@@ -373,9 +373,3 @@ string FormatTime(int min)
 	return time;
 }
 
-/// ////////////////////////7
-const Station* GetNext(const Station* t) 
-{
-	//MainStation a{ "Succ", 0, 2 };
-	return t;
-}

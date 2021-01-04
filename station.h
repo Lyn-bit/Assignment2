@@ -9,7 +9,7 @@
 #include <math.h>
 #include <iostream>
 
-#include "train.h"
+#include "Train.h"
 #include "ReadFile.h"
 
 class Station 

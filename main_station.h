@@ -8,7 +8,7 @@
 #include <utility>
 #include <algorithm>//
 
-#include "train.h"
+//#include "train.h"
 
 
 class MainStation : public Station {
@@ -116,14 +116,12 @@ private:
 // Operatore di uguaglianza
 bool operator==(const MainStation& s_one, const MainStation& s_two);
 
+///////////////////////////////////
 // Ritrona i minuti, del binario con verso in base alla lista "t",
 // che mancano che il treno che c'è davanti sia a più di 10km
 int TimeToFree(const std::list<Train>& t, const MainStation& s);
 std::string FormatTime(int n);
-
-/// ///////////
-const Station* GetNext(const Station* t);
-
+/////////////////////////////////////
 
 #endif // !main_station_h
 
