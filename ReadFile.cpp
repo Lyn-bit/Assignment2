@@ -26,7 +26,7 @@ list<Station*> ReadFile::read_Station()
     if(myfile.is_open())
     {
         myfile >> origin_Station;
-        MainStation *ms = new MainStation{origin_Station,0,0};
+        MainStation *ms = new MainStation{origin_Station,0,0,*this};
         temp.push_back(ms);
 
         string name;
@@ -36,12 +36,12 @@ list<Station*> ReadFile::read_Station()
         {
             if(type==0)
             {
-                MainStation *ms = new MainStation{name,type,distance/*,*this*/};
+                MainStation *ms = new MainStation{name,type,distance,*this};
                 temp.push_back(ms);
             }
             else if(type==1)
             {
-                LocalStation *ls = new LocalStation{name,type,distance};
+                LocalStation *ls = new LocalStation{name,type,distance,*this};
                 temp.push_back(ls);
             }
             else
@@ -117,7 +117,7 @@ list<Train*> ReadFile::read_Train()
     
 }
 
-int ReadFile::get_num_of_mainstation()
+int ReadFile::get_num_of_mainstation() const
 {
     int count=0;
     for (auto p=Station_list.begin();p!=Station_list.end();p++)
@@ -129,7 +129,7 @@ int ReadFile::get_num_of_mainstation()
     return count;
 }
 
-int ReadFile::get_num_of_localstation()
+int ReadFile::get_num_of_localstation() const
 {
     int count=0;
     for (auto p=Station_list.begin();p!=Station_list.end();p++)
@@ -143,7 +143,7 @@ int ReadFile::get_num_of_localstation()
 }
 
 //rimuovo tutte le stazioni che distano meno di 20 km da quella precedente 
-list<Station*> ReadFile::modified_station_list()
+list<Station*> ReadFile::modified_station_list() const
 {
     list<Station*> temp;
     copy(Station_list_orig.begin(),Station_list_orig.end(),temp);
@@ -161,7 +161,7 @@ list<Station*> ReadFile::modified_station_list()
 //aggiustare orari inappropriati: tempi impossibili per realizzare il percorso con la max velocità del treno
 //rimuovo anche orari in più. considero gli ultimi come quelli in più
 //se ci sono piu stazioni, verrano aggiunti orari
-list<Train*> ReadFile::modified_train_list()
+list<Train*> ReadFile::modified_train_list() const
 {
     list<Train*> temp;
     string line;
@@ -525,34 +525,34 @@ list<Train*> ReadFile::modified_train_list()
 }
 
 //funzione che restituisce la prima stazione(origine)
-MainStation ReadFile::get_first_Station()
+MainStation ReadFile::get_first_Station() const
 {
     list<Station*> temp = modified_station_list();
     auto p=temp.begin();
-    MainStation ms {(*p)->GetName(),(*p)->GetType(),(*p)->GetDistance()};
+    MainStation ms {(*p)->GetName(),(*p)->GetType(),(*p)->GetDistance(),*this};
     return ms;
 }
 //funzione che restituisce l'ultima stazione
-MainStation ReadFile::get_last_Station()
+MainStation ReadFile::get_last_Station() const
 {
     list<Station*> temp = modified_station_list();
     auto p=prev(temp.begin(),1);
-    MainStation ms {(*p)->GetName(),(*p)->GetType(),(*p)->GetDistance()};
+    MainStation ms {(*p)->GetName(),(*p)->GetType(),(*p)->GetDistance(),*this};
     return ms;
 }
 
 //funzioni che ritornano liste aggiustate
-list<Station*> ReadFile::get_station_list()
+list<Station*> ReadFile::get_station_list() const
 {
     return Station_list;
 }
-list<Train*> ReadFile::get_train_list()
+list<Train*> ReadFile::get_train_list() const
 {
     return Train_list;
 }
 
 //funzione che restituisce la lista delle stazioni principali
-list<Station*> ReadFile::get_main_station_list()
+list<Station*> ReadFile::get_main_station_list() const
 {
     list<Station*> temp;
     copy(Station_list_orig.begin(),Station_list_orig.end(),temp);
@@ -567,3 +567,35 @@ list<Station*> ReadFile::get_main_station_list()
     return temp;
 }
 
+//funzioni che restituisco la stazione dopo/prima ricevento come un parametro Station
+//ritorna nullptr nei casi estremi
+Station* ReadFile::nextStation(Station* s)
+{
+    if (s->GetName()==get_last_Station().GetName())
+    {
+        cout << "It the last Station" << endl;
+        return nullptr;
+    }
+    for(auto p=Station_list.begin();p!=Station_list.end();p++)
+    {
+        if ((*p)->GetName()==s->GetName())
+        {
+            return *(next(p,1));
+        }
+    }
+}
+Station* ReadFile::prevStation(Station* s)
+{
+    if (s->GetName()==get_first_Station().GetName())
+    {
+        cout << "It the first Station" << endl;
+        return nullptr;
+    }
+    for(auto p=Station_list.begin();p!=Station_list.end();p++)
+    {
+        if ((*p)->GetName()==s->GetName())
+        {
+            return *(prev(p,1));
+        }
+    }
+}
