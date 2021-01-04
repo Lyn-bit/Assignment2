@@ -97,29 +97,29 @@ private:
 	// SECONDA e TERZA cella uguale a prime due ma per il verso opposto
 	int tracks_state_[4];
 	// Lista dei treni che sono in stazione
-	std::list<Train> trains_in_station_;
+	std::list<Train&> trains_in_station_;
 	// Lista dei treni che si trovano dalla stazione ai
-	// 20km prima della stazione successiva/precedente
+	// 5km prima della stazione successiva/precedente
 	// l'ultimo treno nella lista è quello più vicino alla stazione
 	// east <-
 	// weast ->
-	std::list<Train> trains_ahead_east_;
-	std::list<Train> trains_ahead_weast_;
+	std::list<const Train&> trains_ahead_east_;
+	std::list<const Train&> trains_ahead_weast_;
 	//Sono strutturate in modo da avere un treno con binario 0 e 1 alternati
 	//
 	// Lista dei treni parcheggiati verso 0 ->
-	std::vector<Train> parked_trains_east_;
+	std::vector<Train&> parked_trains_east_;
 	// Lista dei treni parcheggiati verso 1 <-
-	std::vector<Train> parked_trains_weast_;
+	std::vector<Train&> parked_trains_weast_;
 };
 
 // Operatore di uguaglianza
-bool operator==(const MainStation& s_one, const MainStation& s_two);
+//bool operator==(const MainStation& s_one, const MainStation& s_two);
 
 ///////////////////////////////////
 // Ritrona i minuti, del binario con verso in base alla lista "t",
 // che mancano che il treno che c'è davanti sia a più di 10km
-int TimeToFree(const std::list<Train>& t, const MainStation& s);
+int TimeToFree(const std::list<Train&>& t, const MainStation& s);
 std::string FormatTime(int n);
 /////////////////////////////////////
 
