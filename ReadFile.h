@@ -29,8 +29,8 @@ class ReadFile{
 
         //funzioni che modificano liste errate
         //tolgono eventuali orari/stazioni inappropriate
-        std::list<Station*> modified_station_list();
-        std::list<Train*> modified_train_list();
+        std::list<Station*> modified_station_list() const;
+        std::list<Train*> modified_train_list() const;
 
         //funzione che ritorna la stazione di partenza
         MainStation get_first_Station() const;
