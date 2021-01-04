@@ -57,7 +57,7 @@ public:
 	
 	// Ritorna una lista dei treni che si trovano tra questa stazione 
 	// e la succesiva/precedente in base al verso
-	std::list<Train> GetTrainsAhead(int verse) const override
+	std::list<const Train&> GetTrainsAhead(int verse) const override
 	{
 		if (verse == 0) { return trains_ahead_weast_; }
 		else { return trains_ahead_east_; }
@@ -119,7 +119,7 @@ private:
 ///////////////////////////////////
 // Ritrona i minuti, del binario con verso in base alla lista "t",
 // che mancano che il treno che c'è davanti sia a più di 10km
-int TimeToFree(const std::list<Train&>& t, const MainStation& s);
+int TimeToFree(const std::list<const Train&>& t, const MainStation& s);
 std::string FormatTime(int n);
 /////////////////////////////////////
 
