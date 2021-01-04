@@ -8,10 +8,12 @@
 
 using namespace std;
 
-MainStation::MainStation(string name, int type, int distance) :
-	name_{name}, type_{type}, distance_{distance}, trains_in_station_{}, tracks_state_{0, 0, 0, 0},
+MainStation::MainStation(string name, int type, int distance, const ReadFile &read_file) :
+	name_{name}, type_{type}, distance_{distance}, position_{0}, read_file_{read_file},
+	trains_in_station_{}, tracks_state_{0, 0, 0, 0},
 	trains_ahead_east_{}, trains_ahead_weast_{}, parked_trains_east_{}, parked_trains_weast_{}
 {
+	/* inizializza position al valore giusto con funzione che restituisce la lista delle stazioni*/
 }
 
 bool operator==(const MainStation& s_one, const MainStation& s_two)
@@ -23,6 +25,13 @@ bool operator==(const MainStation& s_one, const MainStation& s_two)
 // (e forse appena fa la riechiesta se gia disponibile)
 void MainStation::ArrivalRequest(Train& t)
 { 
+	/*
+	* Se stazione origine o capolinea ( in base al verso del treno)
+	* devono comunque stare i 5 min per far scendere i passeggieri
+	* La cosa diversa è che la lista trains_aheadeast/east e train_p_east/weast (se orig. o capol.)
+	* non ci saranno
+	*/
+
 	vector<Train>& trains = parked_trains_east_;
 	trains = (t.GetVerse() == 0) ? trains = parked_trains_east_ : trains = parked_trains_weast_;
 
@@ -47,6 +56,13 @@ void MainStation::ArrivalRequest(Train& t)
 
 bool MainStation::DepartureRequest(Train& t)
 {
+	/*
+	* 
+	* Una Volta arrivati al capolinea/origine (in base al verso) non devono più partire ma scompaiono e basta
+	* 
+	*/
+
+
 	/*devo gestire i casi che la richiesta venga col trenp
 	che si ttrova in stazione o in parcheggio*/
 	vector<Train>& parked_trains = parked_trains_east_;
@@ -66,7 +82,9 @@ bool MainStation::DepartureRequest(Train& t)
 			tracks_state_[t.GetTrack()] = PARK_TO_STATION_TIME + 5;
 			trains_in_station_.push_back(parked_trains[1]);
 			parked_trains.erase(parked_trains.begin());
-			trains_ahead.push_back(t);
+			// Controlla se è stazione origine o capolinea 
+			if (t.GetVerse() == 0 and position_ != 2 or t.GetVerse() == 1 and position_ != 1)
+				trains_ahead.push_back(t);
 			return true;
 		}
 		// se no tutti gli altri treni devono aumentare l'attesa e anche lui
@@ -113,7 +131,9 @@ bool MainStation::DepartureRequest(Train& t)
 		{
 			tracks_state_[t.GetTrack()] = 0;
 			trains_in_station_.remove(t);
-			trains_ahead.push_back(t);
+			// Controlla se è stazione origine o capolinea 
+			if (t.GetVerse() == 0 and position_ != 2 or t.GetVerse() == 1 and position_ != 1)
+				trains_ahead.push_back(t);
 			return true;
 		}
 	}
@@ -121,27 +141,81 @@ bool MainStation::DepartureRequest(Train& t)
 
 void MainStation::Update()
 {
+	/*
+	*
+	* Una Volta arrivati al capolinea/origine (in base al verso) non devono più partire ma scompaiono e basta
+	*
+	*/
+
 	// Decrementa il contatore del tempo passato nei binari
 	for (int i = 0; i < 4; i++)
 		if (tracks_state_[i] > 0)
 			tracks_state_[i] -= 1;
+	// Se stazione origine o capolinea devo rimuovere i treni dalla stazione
+	if (position_ == 1) // Se stazione origine
+	{
+		for (auto i = trains_in_station_.begin(); i != trains_in_station_.end(); i++)
+			if (tracks_state_[i->GetTrack()] == 0 and i->GetVerse() == 1)
+				trains_in_station_.erase(i);
+	}
+	else if (position_ == 2) // Se stazione capolinea
+	{
+		for (auto i = trains_in_station_.begin(); i != trains_in_station_.end(); i++)
+			if (tracks_state_[i->GetTrack()] == 0 and i->GetVerse() == 0)
+				trains_in_station_.erase(i);
+	}
 	
-	// Rimuovono i treni che si trovano nella stazione successiva
+	// Rimuovono i treni partiti che si trovano gia' nella stazione successiva
 	for (auto i = trains_ahead_east_.begin(); i != trains_ahead_east_.end(); i++)
-		if (i->GetPos() <= (f::GetNext(*this).GetDistance() + 5))
+		if (i->GetPos() <= (GetNext(this)->GetDistance() + 5))
 			trains_ahead_east_.erase(i);
 
 	for (auto i = trains_ahead_weast_.begin(); i != trains_ahead_weast_.end(); i++)
-		if (i->GetPos() <= (f::GetPrev(*this).GetDistance() - 5))
+		if (i->GetPos() <= (GetPrev(this)->GetDistance() - 5))
 			trains_ahead_weast_.erase(i);
 }
 
-void MainStation::PrintDepartureTime(const Train& t, int time) const {}
-void MainStation::PrintArrivalTime(const Train& t, int time) const {}
+int MainStation::GetNextTrain(const Train& t) const
+{
+	/*
+	*
+	* capolinea/origine 
+	*
+	*/
+	list<Train> trains = trains_ahead_east_;
+	if (t.GetVerse() == 0) { trains = trains_ahead_weast_; }
+
+	auto it_next_train = find(trains.begin(), trains.end(), t);
+	if (it_next_train == trains.end())
+		return -1;
+	else
+		return it_next_train->GetPos();
+}
+
+void MainStation::PrintDepartureTime(const Train& t, int time) const 
+{
+	/*Non completo( manca caso ultima stazione)*/
+	string next_station = (t.GetVerse() == 0) ? GetNext(this)->GetName() : GetPrev(this)->GetName();
+	
+	string train_type;
+	if (t.GetType() == 1) { train_type = "Regionale"; }
+	else if (t.GetType() == 2) { train_type = "Alta Velocita'"; }
+	else { train_type = "Alta Velocita' Super"; }
+	cout << "Il treno " + train_type + " numero " << t.GetId() << " diretto a " + next_station << " e' in partenza dal binario " << t.GetTrack() << "\t" + FormatTime(time) << endl;
+}
+void MainStation::PrintArrivalTime(const Train& t, int time) const 
+{
+	
+}
 
 
 vector<int> MainStation::TrackStatus(const Train& t) const
 {
+	/*
+	*
+	* capolinea/origine
+	*
+	*/
 	int verse = t.GetVerse();
 	const vector<Train> *trains = &parked_trains_east_;
 	trains = (verse == 0) ? trains = &parked_trains_east_ : trains = &parked_trains_weast_;
@@ -199,6 +273,11 @@ int MainStation::GetEstimatedArrivalTime(const Train& t) const
 // return il binario del treno
 void MainStation::AddParkedTrain(Train& t)
 {
+	/*
+	*
+	* capolinea/origine
+	*
+	*/
 	vector<Train>& trains = parked_trains_east_;
 	trains = (t.GetVerse() == 0) ? trains = parked_trains_east_ : trains = parked_trains_weast_;
 
@@ -278,3 +357,25 @@ int TimeToFree(const list<Train>& trains_ahead, const MainStation& s)
 	return time;
 }
 
+string FormatTime(int min)
+{
+	int minutes = min % 60;
+	int hour = min / 60;
+	int days = ((hour / 24) % 23);
+	hour -= days * 24;
+
+	string m = (minutes < 10) ? "0" + to_string(minutes) : to_string(minutes);
+	string h = (hour < 10) ? "0" + to_string(hour) : to_string(hour);
+	string d = (days > 0) ? " Giorno +" + to_string(days) : "";
+
+	string time = h + ":" + m + d;
+
+	return time;
+}
+
+/// ////////////////////////7
+const Station* GetNext(const Station* t) 
+{
+	//MainStation a{ "Succ", 0, 2 };
+	return t;
+}

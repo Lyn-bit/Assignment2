@@ -7,10 +7,10 @@
 #include <vector>
 #include <list>
 #include <math.h>
+#include <iostream>
 
 #include "train.h"
-
-//#include "Controll.h"  //debug
+#include "ReadFile.h"
 
 class Station 
 {
@@ -18,6 +18,7 @@ public:
 	virtual void ArrivalRequest(Train& t) = 0;
 	virtual bool DepartureRequest(Train& t) = 0;
 	virtual void Update() = 0;
+	virtual int GetNextTrain(const Train& t) const = 0;
 	virtual std::string GetName() const = 0;
 	virtual int GetType() const = 0;
 	virtual int GetDistance() const = 0;
