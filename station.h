@@ -26,6 +26,8 @@ public:
 
 	virtual void PrintDepartureTime(const Train& t, int time) const = 0;
 	virtual void PrintArrivalTime(const Train& t, int time) const = 0;
+	// Da rivedere
+	bool operator==(const Station& s) { return s.GetName() == this->GetName(); }
 };
 
 #endif // !station_h

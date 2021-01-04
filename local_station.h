@@ -33,22 +33,38 @@ public:
 	std::string GetName() const override;
 	int GetType() const override;
 	int GetDistance() const override;
-	std::list<Train> GetTrainsAhead(int verse) const override;
+	/*Da aggiungere i treni di transito(appena riceve la richiesta a 20km in base all
+	situazione la stazione sa quando il treno sarà arrivato)*/
+	//std::list<Train> GetTrainsAhead(int verse) const override;
+	int GetNextTrain(const Train& t) const override;
 
 	void PrintDepartureTime(const Train& t, int time) const override;
 	void PrintArrivalTime(const Train& t, int time) const override;
 
 private:
 	void AddParkedTrain(Train& t);
+	void AddDelay(int delay, int verse);
 	bool ComparePriority(const Train& t1, const Train& t2) const;
 	int GetEstimatedArrivalTime(const Train& t) const;
+	// Ritorna un array con le prime due posizioni i minuti d'attesa
+	// (senza contare i 5 minuti che ogni treno deve stare fermo in stazione)
+	// per poter usufurire del binario piu veloce e il numero di binario
+	// e le ultime 2 di quello più lento
+	// l'ultima cella contiene l'attesa in minuti per poter usare il 
+	// binario di transito in base al verso del treno
 	std::vector<int> TrackStatus(const Train& t) const;
+
+	// calocla il tempo che il treno ci impiegha a superare la stazione di 10km
+	// in base alla posizione
+	int GetHighSpeedTrainTime(const Train& t) const;
+	// In base al bonario trova il treno
+	const Train& FindTrain(int track) const;
 
 private:
 	std::string name_;
 	int type_;
 	int distance_;
-
+	// 1 se originie, 2 se capolinea, -1 per le altre
 	int position_;
 	const ReadFile& read_file_;
 	// Array di interi di dimensione fissa con:
@@ -63,23 +79,26 @@ private:
 	//
 	// SESTA cella, come la quinta ma per il verso opposto
 	int tracks_state_ [6];
-	// Lista dei treni che sono in stazione
-	std::list<Train> trains_in_station_;
+	// Lista dei treni che sono in stazione (non conta quelli di transito)
+	std::list<Train&> trains_in_station_;
 
-	std::list<Train> trains_ahead_east_;
-	std::list<Train> trains_ahead_weast_;
+	// Lista dei treni che si trovano dalla stazione ai
+	// 5km prima della stazione successiva/precedente
+	// l'ultimo treno nella lista è quello più vicino alla stazione
+	// east <-
+	// weast ->
+	std::list<const Train&> trains_ahead_east_;
+	std::list<const Train&> trains_ahead_weast_;
 	// Lista dei treni parcheggiati verso 0 ->
-	std::vector<Train> parked_trains_east_;
+	std::vector<Train&> parked_trains_east_;
 	// Lista dei treni parcheggiati verso 1 <-
-	std::vector<Train> parked_trains_weast_;
+	std::vector<Train&> parked_trains_weast_;
 
 	/*
 	Variabili private che forse servono:
 
 	*/
 };
-
-bool operator==(const LocalStation& s_one, const LocalStation& s_two);
 
 ///////////////
 int TimeToFree(const std::list<Train>& t, const MainStation& s);
