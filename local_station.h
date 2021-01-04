@@ -35,7 +35,7 @@ public:
 	int GetDistance() const override;
 	/*Da aggiungere i treni di transito(appena riceve la richiesta a 20km in base all
 	situazione la stazione sa quando il treno sarà arrivato)*/
-	//std::list<Train> GetTrainsAhead(int verse) const override;
+	std::list<Train> GetTrainsAhead(int verse) const override;
 	int GetNextTrain(const Train& t) const override;
 
 	void PrintDepartureTime(const Train& t, int time) const override;
