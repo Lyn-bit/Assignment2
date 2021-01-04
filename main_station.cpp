@@ -78,7 +78,7 @@ bool MainStation::DepartureRequest(Train& t)
 		if (tracks_state_[t.GetTrack()] == 0)
 		{
 			tracks_state_[t.GetTrack()] = PARK_TO_STATION_TIME + 5;
-			trains_in_station_.push_back(parked_trains[1]);
+			trains_in_station_.push_back(parked_trains[0]);
 			parked_trains.erase(parked_trains.begin());
 			// Controlla se è stazione origine o capolinea 
 			if (t.getVerse() == 0 && position_ != 2 || t.getVerse() == 1 && position_ != 1)
@@ -111,7 +111,7 @@ bool MainStation::DepartureRequest(Train& t)
 			}
 		// Se non può partire perche ci sono treni davanti aumnetare il ritardo del treno e di quelli
 		// che lo precedono nel parcheggio
-		if (abs(distance_ - trains_ahead.back().getPosition()) < 10)
+		if (abs(distance_ - trains_ahead.back().getPosition()) < 5)
 		{
 			// Controllo se laltro treno h auna priorita piu alta
 			
@@ -165,11 +165,11 @@ void MainStation::Update()
 	
 	// Rimuovono i treni partiti che si trovano gia' nella stazione successiva
 	for (auto i = trains_ahead_east_.begin(); i != trains_ahead_east_.end(); i++)
-		if (i->getPosition() <= (GetNext(this)->GetDistance() + 5))
+		if (i->getPosition() <= (read_file_.nextStation(this)->GetDistance() + 5))
 			trains_ahead_east_.erase(i);
 
 	for (auto i = trains_ahead_weast_.begin(); i != trains_ahead_weast_.end(); i++)
-		if (i->getPosition() <= (GetPrev(this)->GetDistance() - 5))
+		if (i->getPosition() <= (read_file_.prevStation(this)->GetDistance() - 5))
 			trains_ahead_weast_.erase(i);
 }
 
@@ -180,7 +180,7 @@ int MainStation::GetNextTrain(const Train& t) const
 	* capolinea/origine 
 	*
 	*/
-	list<Train&> trains = trains_ahead_east_;
+	list<const Train&> trains = trains_ahead_east_;
 	if (t.getVerse() == 0) { trains = trains_ahead_weast_; }
 
 	auto it_next_train = find(trains.begin(), trains.end(), t);
@@ -193,7 +193,7 @@ int MainStation::GetNextTrain(const Train& t) const
 void MainStation::PrintDepartureTime(const Train& t, int time) const 
 {
 	/*Non completo( manca caso ultima stazione)*/
-	string next_station = (t.getVerse() == 0) ? GetNext(this)->GetName() : GetPrev(this)->GetName();
+	string next_station = (t.getVerse() == 0) ? read_file_.nextStation(this)->GetName() : read_file_.prevStation(this)->GetName();
 	
 	string train_type;
 	if (t.getType() == 1) { train_type = "Regionale"; }
@@ -218,8 +218,7 @@ vector<int> MainStation::TrackStatus(const Train& t) const
 	*
 	*/
 	int verse = t.getVerse();
-	const vector<Train> *trains = &parked_trains_east_;
-	trains = (verse == 0) ? trains = &parked_trains_east_ : trains = &parked_trains_weast_;
+	const vector<Train&> *trains = (verse == 0) ? parked_trains_east_ : parked_trains_weast_;
 	
 	int wait_time_track_one{ 0 };
 	int wait_time_track_two{ 0 };
@@ -271,7 +270,6 @@ int MainStation::GetEstimatedArrivalTime(const Train& t) const
 
 // l'array parked_trains cresce ogni volta che si fa insert
 // Inserisce il treno nella lista e aggiorna direttamente il tempo dìattesa del treno
-// return il binario del treno
 void MainStation::AddParkedTrain(Train& t)
 {
 	/*
@@ -341,7 +339,7 @@ bool MainStation::ComparePriority(const Train& t1, const Train& t2) const
 }
 
 
-int TimeToFree(const list<Train>& trains_ahead, const MainStation& s)
+int TimeToFree(const list<const Train&>& trains_ahead, const MainStation& s)
 {
 	int pos = abs(s.GetDistance() - trains_ahead.back().getPosition());
 

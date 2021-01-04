@@ -30,13 +30,17 @@ public:
 
 	void Update() override;
 
-	std::string GetName() const override;
-	int GetType() const override;
-	int GetDistance() const override;
+	std::string GetName() const override { return name_; }
+	int GetType() const override { return type_; }
+	int GetDistance() const override { return distance_; }
 
 	/*Da aggiungere i treni di transito(appena riceve la richiesta a 20km in base all
 	situazione la stazione sa quando il treno sarà arrivato)ccc*/
-	std::list<Train> GetTrainsAhead(int verse) const override;
+	std::list<const Train&> GetTrainsAhead(int verse) const override
+	{
+		if (verse == 0) { return trains_ahead_weast_; }
+		else { return trains_ahead_east_; }
+	}
 	int GetNextTrain(const Train& t) const override;
 
 	void PrintDepartureTime(const Train& t, int time) const override;
@@ -75,11 +79,8 @@ private:
 	// VERSO "0"
 	//
 	// SECONDA e TERZA cella uguale a prime due ma per il verso opposto
-	// 
-	// QUINTA cella (stato del binario di transito), VERSO 0
-	//
-	// SESTA cella, come la quinta ma per il verso opposto
-	int tracks_state_ [6];
+	// I binari di trainsito sarebbero il 5(0) e il 6(1) ma non servono nell'array
+	int tracks_state_ [4];
 	// Lista dei treni che sono in stazione (non conta quelli di transito)
 	std::list<Train&> trains_in_station_;
 
@@ -102,7 +103,7 @@ private:
 };
 
 ///////////////
-int TimeToFree(const std::list<Train>& t, const MainStation& s);
+int TimeToFree(const std::list<Train&>& t, const MainStation& s);
 std::string FormatTime(int n);
 ///////////////
 #endif // !local_station_h

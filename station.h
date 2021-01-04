@@ -22,7 +22,7 @@ public:
 	virtual std::string GetName() const = 0;
 	virtual int GetType() const = 0;
 	virtual int GetDistance() const = 0;
-	virtual std::list<Train> GetTrainsAhead(int verse) const = 0;
+	virtual std::list<const Train&> GetTrainsAhead(int verse) const = 0;
 
 	virtual void PrintDepartureTime(const Train& t, int time) const = 0;
 	virtual void PrintArrivalTime(const Train& t, int time) const = 0;
