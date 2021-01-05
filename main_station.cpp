@@ -2,11 +2,10 @@
 
 #include "main_station.h"
 
-//#include "Controll.h" //DEBUG
-
 #define PARK_TO_STATION_TIME 4
 
 using namespace std;
+
 
 MainStation::MainStation(string name, int type, int distance, const ReadFile &read_file) :
 	name_{name}, type_{type}, distance_{distance}, position_{-1}, read_file_{read_file},
@@ -16,8 +15,6 @@ MainStation::MainStation(string name, int type, int distance, const ReadFile &re
 	if (read_file.get_first_Station() == *this) { position_ = 1; }
 	else if (read_file.get_last_Station() == *this) { position_= 2; }
 }
-
-
 
 // I binari devono essere occupati appena il treno lascia il parcheggio
 // (e forse appena fa la riechiesta se gia disponibile)
@@ -43,10 +40,10 @@ void MainStation::ArrivalRequest(Train& t)
 		t.SetTrack(track_info[1]); t.SetWaitTime(0);
 	}
 	// se all arrivo trova libero il binario più "lento" lo metto la
-	else if (estimated_arrival_time > (track_info[2] + (evene_tracks * 5)))
-	{
-		t.SetTrack(track_info[3]); t.SetWaitTime(0);
-	}
+	//else if (estimated_arrival_time > (track_info[2] + (evene_tracks * 5)))
+	//{
+		//t.SetTrack(track_info[3]); t.SetWaitTime(0);
+	//}
 	// altri casi
 	else
 		AddParkedTrain(t);
@@ -190,9 +187,19 @@ int MainStation::GetNextTrain(const Train& t) const
 		return it_next_train->getPosition();
 }
 
+string MainStation::GetName() const { return name_; }
+int MainStation::GetType() const { return type_; }
+int MainStation::GetDistance() const { return distance_; }
+list<const Train&> MainStation::GetTrainsAhead(int verse) const
+{
+	if (verse == 0) { return trains_ahead_weast_; }
+	else { return trains_ahead_east_; }
+}
+
 void MainStation::PrintDepartureTime(const Train& t, int time) const 
 {
-	/*Non completo( manca caso ultima stazione)*/
+	/*Non completo( manca caso ultima stazione)
+	oppure nell'ultima stazione no viene mai chiamata la funzione*/
 	string next_station = (t.getVerse() == 0) ? read_file_.nextStation(this)->GetName() : read_file_.prevStation(this)->GetName();
 	
 	string train_type;
@@ -201,12 +208,20 @@ void MainStation::PrintDepartureTime(const Train& t, int time) const
 	else { train_type = "Alta Velocita' Super"; }
 	cout << "Il treno " + train_type + " numero " << t.getId() << " diretto a " + next_station << " e' in partenza dal binario " << t.GetTrack() << "\t" + FormatTime(time) << endl;
 }
-void MainStation::PrintArrivalTime(const Train& t, int time) const 
+void MainStation::PrintArrivalTime(const Train& t, int time, int delay) const
 {
-	/*
-	* potrei fare print quando il treno fa la richiesta ai 20km dicendo quando arrivera' e
-	* quando parte dalla stazione
-	*/
+	
+	// Qunado fa la richiestà ai 20km se non deve andare in parcheggio se no appena lascia il parcheggio, forse serve una funzione GetDealy() dal treno
+	string origin_station = (t.getVerse() == 0) ? read_file_.get_first_Station() : read_file_.get_last_Station();
+	string train_type;
+	if (t.getType() == 1) { train_type = "Regionale"; }
+	else if (t.getType() == 2) { train_type = "Alta Velocita'"; }
+	else { train_type = "Alta Velocita' Super"; }
+	
+	string t_delay = "";
+	if (delay > 0) { t_delay = "R " + to_string(delay); }
+
+	cout << "Il treno " + train_type + " numero " << t.getId() << " in arrivo da " + origin_station << " e' in arrivo al binario " << t.GetTrack() << delay << "\t" + FormatTime(time) << endl;
 }
 
 
@@ -218,7 +233,7 @@ vector<int> MainStation::TrackStatus(const Train& t) const
 	*
 	*/
 	int verse = t.getVerse();
-	const vector<Train&> *trains = (verse == 0) ? parked_trains_east_ : parked_trains_weast_;
+	vector<Train&>& trains = (verse == 0) ? trains = parked_trains_east_ : trains = parked_trains_weast_;
 	
 	int wait_time_track_one{ 0 };
 	int wait_time_track_two{ 0 };
@@ -226,12 +241,12 @@ vector<int> MainStation::TrackStatus(const Train& t) const
 	wait_time_track_one = tracks_state_[(2 * verse)];
 	wait_time_track_two = tracks_state_[1 + (2 * verse)];
 	
-	for (int i = 0; i < (trains->size()); i++)
+	for (int i = 0; i < (trains.size()); i++)
 	{
-		if (trains->at(i).GetTrack() == (2 * verse))
-			wait_time_track_one += trains->at(i).GetTimeLeft();
+		if (trains[i].GetTrack() == (2 * verse))
+			wait_time_track_one += trains[i].GetTimeLeft();
 		else
-			wait_time_track_two += trains->at(i).GetTimeLeft();
+			wait_time_track_two += trains[i].GetTimeLeft();
 	}
 	
 	// prime due posizioni attesa in muinuti del binario più veloce
@@ -303,7 +318,8 @@ void MainStation::AddParkedTrain(Train& t)
 	int wait_time{ 0 };
 	int i = TrackStatus(t)[1] % 2;
 	for (; i < track || i < trains.size(); i += 2)
-		wait_time += trains[track].GetTimeLeft() + 5;
+		if (estimated_arrival < trains[track].GetTimeLeft() + 5)
+		wait_time += estimated_arrival - (trains[track].GetTimeLeft() + 5);
 	t.SetWaitTime(wait_time);
 
 	// Aggiorno l'attesa per gli eventuali treni che sono stati spostati 
@@ -356,19 +372,4 @@ int TimeToFree(const list<const Train&>& trains_ahead, const MainStation& s)
 	return time;
 }
 
-string FormatTime(int min)
-{
-	int minutes = min % 60;
-	int hour = min / 60;
-	int days = ((hour / 24) % 23);
-	hour -= days * 24;
-
-	string m = (minutes < 10) ? "0" + to_string(minutes) : to_string(minutes);
-	string h = (hour < 10) ? "0" + to_string(hour) : to_string(hour);
-	string d = (days > 0) ? " Giorno +" + to_string(days) : "";
-
-	string time = h + ":" + m + d;
-
-	return time;
-}
 

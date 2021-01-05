@@ -50,22 +50,18 @@ public:
 	int GetNextTrain(const Train& t) const override;
 
 
-	std::string GetName() const override { return name_; }
-	int GetType() const override { return type_; }
-	int GetDistance() const override { return distance_; }
+	inline std::string GetName() const override;
+	inline int GetType() const override;
+	inline int GetDistance() const override;
 
 	
 	// Ritorna una lista dei treni che si trovano tra questa stazione 
 	// e la succesiva/precedente in base al verso
-	std::list<const Train&> GetTrainsAhead(int verse) const override
-	{
-		if (verse == 0) { return trains_ahead_weast_; }
-		else { return trains_ahead_east_; }
-	}
+	inline std::list<const Train&> GetTrainsAhead(int verse) const override;
 
 	/*da fare*/
 	void PrintDepartureTime(const Train& t, int time) const override;
-	void PrintArrivalTime(const Train& t, int time) const override;
+	void PrintArrivalTime(const Train& t, int time, int delay) const override;
 
 private:
 	void AddParkedTrain(Train& t);
@@ -74,7 +70,7 @@ private:
 	// Ritorna un array con le prime due posizioni i minuti d'attesa
 	// (senza contare i 5 minuti che ogni treno deve stare fermo in stazione)
 	// per poter usufurire del binario piu veloce e il numero di binario
-	// e le ultime 2 di quello più lento
+	// le ultime 2 celle uguale ma di quello più lento
 	std::vector<int> TrackStatus(const Train& t) const;
 	
 	/*
@@ -120,7 +116,6 @@ private:
 // Ritrona i minuti, del binario con verso in base alla lista "t",
 // che mancano che il treno che c'è davanti sia a più di 10km
 int TimeToFree(const std::list<const Train&>& t, const MainStation& s);
-std::string FormatTime(int n);
 /////////////////////////////////////
 
 #endif // !main_station_h
