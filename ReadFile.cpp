@@ -19,6 +19,27 @@ ReadFile::ReadFile()
     Train_list = modified_train_list();
 }
 
+//distruttore
+ReadFile::~ReadFile()
+{
+    for(auto p=Station_list_orig.begin();p!=Station_list_orig.end();p++)
+    {
+        delete *p;
+    }
+    for(auto p=Train_list_orig.begin();p!=Train_list_orig.end();p++)
+    {
+        delete *p;
+    }
+    for(auto p=Station_list.begin();p!=Station_list.end();p++)
+    {
+        delete *p;
+    }
+    for(auto p=Train_list.begin();p!=Train_list.end();p++)
+    {
+        delete *p;
+    }
+}
+
 list<Station*> ReadFile::read_Station()
 {
     list<Station*> temp;
