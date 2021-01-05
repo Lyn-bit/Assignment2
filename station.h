@@ -11,6 +11,7 @@
 
 #include "Train.h"
 #include "ReadFile.h"
+//#include "functions.h"
 
 class Station 
 {
@@ -25,9 +26,11 @@ public:
 	virtual std::list<const Train&> GetTrainsAhead(int verse) const = 0;
 
 	virtual void PrintDepartureTime(const Train& t, int time) const = 0;
-	virtual void PrintArrivalTime(const Train& t, int time) const = 0;
+	virtual void PrintArrivalTime(const Train& t, int time, int delay) const = 0;
 	// Da rivedere
-	bool operator==(const Station& s) { return s.GetName() == this->GetName(); }
+	inline bool Station::operator==(const Station& s_one);
 };
+
+std::string FormatTime(int min);
 
 #endif // !station_h

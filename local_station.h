@@ -26,25 +26,23 @@ public:
 	void ArrivalRequest(Train& t) override;
 	bool DepartureRequest(Train& t) override;
 
-	int GetNextTrain(const Train& t) const override;
-
 	void Update() override;
 
-	std::string GetName() const override { return name_; }
-	int GetType() const override { return type_; }
-	int GetDistance() const override { return distance_; }
+	int GetNextTrain(const Train& t) const override;
+
+
+	inline std::string GetName() const override;
+	inline int GetType() const override;
+	inline int GetDistance() const override;
 
 	/*Da aggiungere i treni di transito(appena riceve la richiesta a 20km in base all
 	situazione la stazione sa quando il treno sarà arrivato)ccc*/
-	std::list<const Train&> GetTrainsAhead(int verse) const override
-	{
-		if (verse == 0) { return trains_ahead_weast_; }
-		else { return trains_ahead_east_; }
-	}
+	inline std::list<const Train&> GetTrainsAhead(int verse) const override;
+
 	int GetNextTrain(const Train& t) const override;
 
 	void PrintDepartureTime(const Train& t, int time) const override;
-	void PrintArrivalTime(const Train& t, int time) const override;
+	void PrintArrivalTime(const Train& t, int time, int delay) const override;
 
 private:
 	void AddParkedTrain(Train& t);
