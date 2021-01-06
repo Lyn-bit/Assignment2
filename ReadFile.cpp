@@ -227,7 +227,7 @@ list<Train*> ReadFile::modified_train_list() const
                         for (p;p!=temp_s.end();p++)
                         {
                             //approssimo il tempo per eccesso
-                            int t_teorico = floor((*p)->GetDistance()/160);
+                            int t_teorico = floor((*p)->GetDistance()/160*60);
                             if (temp_times[i]!=t_teorico)
                             {
                                 temp_times[i]=t_teorico;
@@ -248,7 +248,7 @@ list<Train*> ReadFile::modified_train_list() const
                         {
                             if(temp_times[i]!=-1)
                             {
-                                int t_teorico = floor((*p)->GetDistance()/160);
+                                int t_teorico = floor((*p)->GetDistance()/160*60);
                                 if (temp_times[i]!=t_teorico)
                                 {
                                     temp_times[i]=t_teorico;
@@ -256,7 +256,7 @@ list<Train*> ReadFile::modified_train_list() const
                             }
                             else
                             {
-                                int t_teorico = floor((*p)->GetDistance()/160);
+                                int t_teorico = floor((*p)->GetDistance()/160*60);
                                 temp_times[i]=t_teorico;
                             }
                         }
@@ -277,7 +277,7 @@ list<Train*> ReadFile::modified_train_list() const
                         for (p;p!=temp_s.end();p++)
                         {
                             //approssimo il tempo per eccesso
-                            int t_teorico = floor((*p)->GetDistance()/240);
+                            int t_teorico = floor((*p)->GetDistance()/240*60);
                             if (temp_times[i]!=t_teorico)
                             {
                                 temp_times[i]=t_teorico;
@@ -297,7 +297,7 @@ list<Train*> ReadFile::modified_train_list() const
                         {
                             if(temp_times[i]!=-1)
                             {
-                                int t_teorico = floor((*p)->GetDistance()/240);
+                                int t_teorico = floor((*p)->GetDistance()/240*60);
                                 if (temp_times[i]!=t_teorico)
                                 {
                                     temp_times[i]=t_teorico;
@@ -305,7 +305,7 @@ list<Train*> ReadFile::modified_train_list() const
                             }
                             else
                             {
-                                int t_teorico = floor((*p)->GetDistance()/240);
+                                int t_teorico = floor((*p)->GetDistance()/240*60);
                                 temp_times[i]=t_teorico;
                             }
                         }
@@ -326,7 +326,7 @@ list<Train*> ReadFile::modified_train_list() const
                         for (p;p!=temp_s.end();p++)
                         {
                             //approssimo il tempo per eccesso
-                            int t_teorico = floor((*p)->GetDistance()/300);
+                            int t_teorico = floor((*p)->GetDistance()/300*60);
                             if (temp_times[i]!=t_teorico)
                             {
                                 temp_times[i]=t_teorico;
@@ -346,7 +346,7 @@ list<Train*> ReadFile::modified_train_list() const
                         {
                             if(temp_times[i]!=-1)
                             {
-                                int t_teorico = floor((*p)->GetDistance()/300);
+                                int t_teorico = floor((*p)->GetDistance()/300*60);
                                 if (temp_times[i]!=t_teorico)
                                 {
                                     temp_times[i]=t_teorico;
@@ -354,7 +354,7 @@ list<Train*> ReadFile::modified_train_list() const
                             }
                             else
                             {
-                                int t_teorico = floor((*p)->GetDistance()/300);
+                                int t_teorico = floor((*p)->GetDistance()/300*60);
                                 temp_times[i]=t_teorico;
                             }
                         }
@@ -385,7 +385,7 @@ list<Train*> ReadFile::modified_train_list() const
                         for (p;p!=temp_s.end();p++)
                         {
                             //approssimo il tempo per eccesso
-                            int t_teorico = floor((max_distance-(*p)->GetDistance())/160);
+                            int t_teorico = floor((max_distance-(*p)->GetDistance())/160*60);
                             if (temp_times[i]!=t_teorico)
                             {
                                 temp_times[i]=t_teorico;
@@ -408,7 +408,7 @@ list<Train*> ReadFile::modified_train_list() const
                         {
                             if(temp_times[i]!=-1)
                             {
-                                int t_teorico = floor((max_distance-(*p)->GetDistance())/160);
+                                int t_teorico = floor((max_distance-(*p)->GetDistance())/160*60);
                                 if (temp_times[i]!=t_teorico)
                                 {
                                     temp_times[i]=t_teorico;
@@ -416,7 +416,7 @@ list<Train*> ReadFile::modified_train_list() const
                             }
                             else
                             {
-                                int t_teorico = floor((*p)->GetDistance()/160);
+                                int t_teorico = floor((*p)->GetDistance()/160*60);
                                 temp_times[i]=t_teorico;
                             }
                         }
@@ -439,7 +439,7 @@ list<Train*> ReadFile::modified_train_list() const
                         for (p;p!=temp_s.end();p++)
                         {
                             //approssimo il tempo per eccesso
-                            int t_teorico = floor((max_distance-(*p)->GetDistance())/240);
+                            int t_teorico = floor((max_distance-(*p)->GetDistance())/240*60);
                             if (temp_times[i]!=t_teorico)
                             {
                                 temp_times[i]=t_teorico;
@@ -461,7 +461,7 @@ list<Train*> ReadFile::modified_train_list() const
                         {
                             if(temp_times[i]!=-1)
                             {
-                                int t_teorico = floor((max_distance-(*p)->GetDistance())/240);
+                                int t_teorico = floor((max_distance-(*p)->GetDistance())/240*60);
                                 if (temp_times[i]!=t_teorico)
                                 {
                                     temp_times[i]=t_teorico;
@@ -469,7 +469,7 @@ list<Train*> ReadFile::modified_train_list() const
                             }
                             else
                             {
-                                int t_teorico = floor((*p)->GetDistance()/240);
+                                int t_teorico = floor((*p)->GetDistance()/240*60);
                                 temp_times[i]=t_teorico;
                             }
                         }
@@ -492,7 +492,7 @@ list<Train*> ReadFile::modified_train_list() const
                         for (p;p!=temp_s.end();p++)
                         {
                             //approssimo il tempo per eccesso
-                            int t_teorico = floor((max_distance-(*p)->GetDistance())/300);
+                            int t_teorico = floor((max_distance-(*p)->GetDistance())/300*60);
                             if (temp_times[i]!=t_teorico)
                             {
                                 temp_times[i]=t_teorico;
@@ -514,7 +514,7 @@ list<Train*> ReadFile::modified_train_list() const
                         {
                             if(temp_times[i]!=-1)
                             {
-                                int t_teorico = floor((max_distance-(*p)->GetDistance())/300);
+                                int t_teorico = floor((max_distance-(*p)->GetDistance())/300*60);
                                 if (temp_times[i]!=t_teorico)
                                 {
                                     temp_times[i]=t_teorico;
@@ -522,7 +522,7 @@ list<Train*> ReadFile::modified_train_list() const
                             }
                             else
                             {
-                                int t_teorico = floor((*p)->GetDistance()/300);
+                                int t_teorico = floor((*p)->GetDistance()/300*60);
                                 temp_times[i]=t_teorico;
                             }
                         }

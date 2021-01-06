@@ -17,6 +17,12 @@ class ReadFile{
    public:
         ReadFile();
         ~ReadFile();
+        ReadFile(const ReadFile& m)=delete;
+        ReadFile(ReadFile&& m)=delete;
+        ReadFile& operator=(const ReadFile& rf)=delete;
+        ReadFile& operator=(const ReadFile&& rf)=delete;
+
+        
         //funzioni che leggono dati dai file.txt senza modificare
         //restituiscono liste con dati errati
         std::list<Station*> read_Station(); 
