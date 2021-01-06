@@ -16,6 +16,7 @@
 class ReadFile{
    public:
         ReadFile();
+        ~ReadFile();
         //funzioni che leggono dati dai file.txt senza modificare
         //restituiscono liste con dati errati
         std::list<Station*> read_Station(); 
@@ -44,8 +45,8 @@ class ReadFile{
         std::list<Station*> get_main_station_list() const;
 
         //funzioni che restituisco la stazione dopo/prima ricevento come un parametro Station
-        Station* nextStation(Station* s) const;
-        Station* prevStation(Station* s) const;
+        const Station* nextStation(const Station* s) const;
+        const Station* prevStation(const Station* s) const;
       
     private:
         //liste originali, senza modifiche
