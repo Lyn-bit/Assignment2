@@ -5,6 +5,9 @@
 
 #include "station.h"
 
+#include <utility>
+#include <algorithm>//
+
 class LocalStation : public Station{
 public:
 	//LocalStation() = delete; /*Forse*/
@@ -23,12 +26,12 @@ public:
 	// Ritorna una stringa contenente le infomrazioni sul binario e 
 	// sul tempo d'attesa tipo: "1, 5" -> binario uno e 5 minuti di attesa in parcheggio
 	// Se l'attesa è 0 allora il treno non deve fermarsi in parcheggio
-	void ArrivalRequest(Train& t) override;
-	bool DepartureRequest(Train& t) override;
+	void ArrivalRequest(Train* t) override;
+	bool DepartureRequest(Train* t) override;
 
 	void Update() override;
 
-	int GetNextTrain(const Train& t) const override;
+	int GetNextTrain(const Train* t) const override;
 
 
 	inline std::string GetName() const override;
@@ -37,31 +40,31 @@ public:
 
 	/*Da aggiungere i treni di transito(appena riceve la richiesta a 20km in base all
 	situazione la stazione sa quando il treno sarà arrivato)ccc*/
-	inline std::list<const Train&> GetTrainsAhead(int verse) const override;
+	inline std::list<const Train*> GetTrainsAhead(int verse) const override;
 
-	int GetNextTrain(const Train& t) const override;
+	int GetNextTrain(const Train* t) const override;
 
-	void PrintDepartureTime(const Train& t, int time) const override;
-	void PrintArrivalTime(const Train& t, int time, int delay) const override;
+	void PrintDepartureTime(const Train* t, int time) const override;
+	void PrintArrivalTime(const Train* t, int time, int delay) const override;
 
 private:
-	void AddParkedTrain(Train& t);
+	void AddParkedTrain(Train* t);
 	void AddDelay(int delay, int verse);
-	bool ComparePriority(const Train& t1, const Train& t2) const;
-	int GetEstimatedArrivalTime(const Train& t) const;
+	bool ComparePriority(const Train* t1, const Train* t2) const;
+	int GetEstimatedArrivalTime(const Train* t) const;
 	// Ritorna un array con le prime due posizioni i minuti d'attesa
 	// (senza contare i 5 minuti che ogni treno deve stare fermo in stazione)
 	// per poter usufurire del binario piu veloce e il numero di binario
 	// e le ultime 2 di quello più lento
 	// l'ultima cella contiene l'attesa in minuti per poter usare il 
 	// binario di transito in base al verso del treno
-	std::vector<int> TrackStatus(const Train& t) const;
+	std::vector<int> TrackStatus(const Train* t) const;
 
 	// calocla il tempo che il treno ci impiegha a superare la stazione di 10km
 	// in base alla posizione
-	int GetHighSpeedTrainTime(const Train& t) const;
+	int GetHighSpeedTrainTime(const Train* t) const;
 	// In base al bonario trova il treno
-	const Train& FindTrain(int track) const;
+	const Train* FindTrain(int track) const;
 
 private:
 	std::string name_;
@@ -80,19 +83,19 @@ private:
 	// I binari di trainsito sarebbero il 5(0) e il 6(1) ma non servono nell'array
 	int tracks_state_ [4];
 	// Lista dei treni che sono in stazione (non conta quelli di transito)
-	std::list<Train&> trains_in_station_;
+	std::list<Train*> trains_in_station_;
 
 	// Lista dei treni che si trovano dalla stazione ai
 	// 5km prima della stazione successiva/precedente
 	// l'ultimo treno nella lista è quello più vicino alla stazione
 	// east <-
 	// weast ->
-	std::list<const Train&> trains_ahead_east_;
-	std::list<const Train&> trains_ahead_weast_;
+	std::list<const Train*> trains_ahead_east_;
+	std::list<const Train*> trains_ahead_weast_;
 	// Lista dei treni parcheggiati verso 0 ->
-	std::vector<Train&> parked_trains_east_;
+	std::vector<Train*> parked_trains_east_;
 	// Lista dei treni parcheggiati verso 1 <-
-	std::vector<Train&> parked_trains_weast_;
+	std::vector<Train*> parked_trains_weast_;
 
 	/*
 	Variabili private che forse servono:
@@ -101,7 +104,7 @@ private:
 };
 
 ///////////////
-int TimeToFree(const std::list<Train&>& t, const MainStation& s);
+int TimeToFree(const std::list<const Train*>& t, const MainStation& s);
 std::string FormatTime(int n);
 ///////////////
 #endif // !local_station_h
