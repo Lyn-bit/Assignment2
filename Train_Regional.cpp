@@ -8,12 +8,13 @@
 
 using namespace std;
 
-Train_Regional::Train_Regional(int numero, int tipo, int direzione, list<int> orari, const ReadFile& file)
+Train_Regional::Train_Regional(int numero, int tipo, int direzione, list<int> orari, const ReadFile& temp)
 {
     this->id = numero;
     this->verse = direzione;
     this->type = tipo;
     this->times = orari;
+    this->file = temp;
     
     if(verse == 0)
     {
@@ -61,6 +62,25 @@ int Train_Regional::getType() const
 list<int> Train_Regional::getTimes() const
 {
     return times;
+}
+
+//metodo che controlla se c'è un ritardo nel tempo
+bool Train_Regional::checkDelay()
+{
+    if(delay == 0)
+    {
+        return false;
+    }
+    else
+    {
+        return true;
+    }
+}
+
+//metodo che ritorna un eventuale tempo di ritardo
+int Train_Regional::getDelay() const
+{
+    return delay;
 }
 
 //metodo che ritorna la velocità del treno
@@ -117,7 +137,7 @@ void Train_Regional::SetWaitTime(int waitTime)
 }
 
 //metodo che ritorna il tempo di attesa del treno
-int Train_Regional::GetTimeLeft() const
+int Train_Regional::GetWaitTime() const
 {
     return wait;
 }
@@ -194,6 +214,10 @@ void Train_Regional::update()
 {
     Train* TrainTemp = getTrainAhead();
     Station* StationTemp = getNextStation();
+    
+    //aggiorno il tempo globale
+    GlobalTime++;
+    
     //aggiorno posizione
     if(verse == 0)
     {
@@ -359,9 +383,18 @@ void Train_Regional::update()
         }
     }
     
-    //aggiorno stazione
+    //aggiorno stazione e orari
     if( ( (StationTemp->GetDistance() < position) && verse == 0) || ( (position < StationTemp->GetDistance()) && verse == 1) ) //se il treno ha superato la stazione allora aggiorno la stazione
     {
-        Current = getNextStation();
+        Current = getNextStation(); //aggiorno stazione
+        int PlannedTime = times.front();
+        if(PlannedTime == GlobalTime) //se il tempo di arrivo effettivo non corrisponde a quello previsto allora aggiorno il ritardo
+        {
+            int temp = GlobalTime - PlannedTime;
+            delay += temp;
+        }
+        times.pop_front(); //rimuovo l'orario della stazione appena superata
+        times.front() += delay; //aggiorno l'orario di arrivo stimato alla prossima stazione aggiungendo il ritardo
     }
+    
 }

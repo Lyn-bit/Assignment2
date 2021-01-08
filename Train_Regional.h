@@ -14,7 +14,7 @@
 class Train_Regional : public Train
 {
 public:
-    Train_Regional(int numero, int tipo, int direzione, std::list<int> orari, const ReadFile& file);
+    Train_Regional(int numero, int tipo, int direzione, std::list<int> orari, const ReadFile& temp);
     ~Train_Regional();
     
     int getMaxSpeed() const override; //metodo che ritorna la velocità massima del treno
@@ -26,6 +26,10 @@ public:
     int getSpeed() const override; //metodo che ritorna la velocità del treno
     int getPosition() const override; //metodo che ritorna la posizione del treno
     
+    //metodo che controlla se c'è un ritardo nel tempo
+    bool checkDelay() override;
+    //metodo che ritorna un eventuale tempo di ritardo
+    int getDelay() const override;
     
     //metodo che ritorna la stazione in cui il treno si trova al momento
     Station* getCurrentStation() const override;
@@ -36,7 +40,7 @@ public:
     //metodo che imposta il tempo di attesa del treno
     void SetWaitTime(int waitTime) override;
     //metodo che ritorna il tempo di attesa del treno
-    int GetTimeLeft() const override;
+    int GetWaitTime() const override;
     
     //metodo che imposta il binario in cui il treno dovrà andare
     void SetTrack(int trackNumber) override;
@@ -77,7 +81,8 @@ private:
     Station* Current; //stazione in cui si trova al momento
     ReadFile* file; //oggetto per controllare la lista delle stazioni
     std::string state; //stato del treno, "s" in stazione, "p" nel parcheggio, "v" in viaggio
-    
+    int GlobalTime = 0; //ora globale
+    int delay = 0; //eventuale tempo di ritardo
 };
 
 #endif // TRAIN_REGIONAL_H

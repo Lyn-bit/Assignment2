@@ -21,6 +21,11 @@ public:
     virtual int getSpeed() const = 0; //metodo che ritorna la velocità del treno
     virtual int getPosition() const = 0; //metodo che ritorna la posizione del treno
     
+    //metodo che controlla se c'è un ritardo nel tempo
+    virtual bool checkDelay() = 0;
+    //metodo che ritorna un eventuale tempo di ritardo
+    virtual int getDelay() const = 0;
+    
     //metodo che ritorna la stazione in cui il treno si trova al momento
     virtual Station* getCurrentStation() const = 0;
     
@@ -30,7 +35,7 @@ public:
     //metodo che imposta il tempo di attesa del treno
     virtual void SetWaitTime(int waitTime) = 0;
     //metodo che ritorna il tempo di attesa del treno
-    virtual int GetTimeLeft() const = 0;
+    virtual int GetWaitTime() const = 0;
     
     //metodo che imposta lo stato del treno, "s" in stazione, "p" nel parcheggio, "v" in viaggio
     virtual void setState(std::string status) = 0;
