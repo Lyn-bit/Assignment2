@@ -4,25 +4,26 @@
 #include <list>
 #include "station.h"
 #include "ReadFile.h"
+#include <utility>
 
 using namespace std;
 
-Train_Regional::Train_Regional(int numero, int tipo, int direzione, std::list<int> orari)
+Train_Regional::Train_Regional(int numero, int tipo, int direzione, list<int> orari, const ReadFile& file)
 {
-    id = numero;
-    verse = direzione;
-    type = tipo;
-    times = orari;
+    this->id = numero;
+    this->verse = direzione;
+    this->type = tipo;
+    this->times = orari;
     
-    if(verse = 0)
+    if(verse == 0)
     {
-        Current = File.get_First_Station();
-        position = Current.GetDistance();
+        this->Current = file->get_First_Station();
+        this->position = Current->GetDistance();
     }
-    else if(verse = 1)
+    else if(verse == 1)
     {
-        Current = File.get_Last_Station();
-        position = Current.GetDistance();
+        this->Current = file->get_Last_Station();
+        this->position = Current->GetDistance();
     }
 }
 
@@ -75,36 +76,36 @@ int Train_Regional::getPosition() const
 }
 
 //metodo che ritorna la stazione in cui il treno si trova al momento
-Station Train_Regional::getCurrentStation() const
+Station* Train_Regional::getCurrentStation() const
 {
     return Current;
 }
     
 //metodo che ritorna la prossima stazione in cui il treno dovrà andare
 //ritorna nullptr se non c'è una prossima stazione
-Station Train_Regional::getNextStation()
+Station* Train_Regional::getNextStation()
 {
     if(verse = 0)
     {
-        if(File.nextStation(Current) == nullptr)
+        if(File->nextStation(Current) == nullptr)
         {
             return nullptr;
             
         }
         else
         {
-            return File.nextStation(Current);
+            return File->nextStation(Current);
         }
     }
     else
     {
-        if(File.prevStation(Current) == nullptr)
+        if(File->prevStation(Current) == nullptr)
         {
             return nullptr;
         }
         else
         {
-            return File.prevStation(Current);
+            return File->prevStation(Current);
         }
     }
 }
@@ -112,7 +113,7 @@ Station Train_Regional::getNextStation()
 //metodo che imposta il tempo di attesa del treno
 void Train_Regional::SetWaitTime(int waitTime)
 {
-    wait = waitTime;
+    this->wait = waitTime;
 }
 
 //metodo che ritorna il tempo di attesa del treno
@@ -121,8 +122,13 @@ int Train_Regional::GetTimeLeft() const
     return wait;
 }
 
+//metodo che imposta lo stato del treno, "s" in stazione, "p" nel parcheggio, "v" in viaggio
+void Train_Regional::setState(string status){
+    state = status;
+}
+
 //metodo che ritorna lo stato del treno, "s" in stazione, "p" nel parcheggio, "v" in viaggio
-string getState() const
+string Train_Regional::getState() const
 {
     return state;
 }
@@ -130,7 +136,7 @@ string getState() const
 //metodo che imposta il binario in cui il treno dovrà andare
 void Train_Regional::SetTrack(int trackNumber)
 {
-    track = trackNumber;
+    this->track = trackNumber;
 }
 
 //metodo che ritorna il binario in cui il treno dovrà andare
@@ -140,85 +146,222 @@ int Train_Regional::GetTrack() const
 }
 
 //metodo che manda una richiesta d'arrivo alla stazione
-void Train_Regional::SendArrivalRequest() //DA FARE
+pair<int, Station*> Train_Regional::SendArrivalRequest()
 {
-    Station temp = getNextStation(); //NON COMPLETO
-    temp.ArrivalRequest();
+    Station* temp = getNextStation();
+    pair<int, Station*> request {0, temp};
+    return request;
 }
 
 //metodo che manda una richiesta di partenza alla stazione
-void Train_Regional::SendDepartureRequest() //DA FARE
+pair<int, Station*> Train_Regional::SendDepartureRequest()
 {
-    
+    Station* temp = getNextStation();
+    pair<int, Station*> request {1, temp};
+    return request;
 }
 
-void Train_Regional::resize_timeList() //DA FARE
+//controllo se ci sono treni davanti
+bool Train_Regional::checkTrainAhead()
 {
-    
-}
-
-//metodo che aggiorna le viariabili che cambiano con il tempo
-void update()
-{
-    Station temp = getNextStation();
-    //aggiorno posizione
-    if(verse = 0)
+    if(Current->getNextTrain(const this) == -1)
     {
-        position += speed;
+        return false;
     }
     else
     {
-        position -= speed;
+        return return true;
+    }
+}
+
+//treno che si trova davanti
+Train* Train_Regional::getTrainAhead() const
+{
+    if(checkTrainAhead()) //sistema di controllo per capire se ha un treno davanti
+    {
+        list<Train*> temp = Current->GetTrainsAhead(verse);
+        Train* NextTrain = temp.back();
+        return NextTrain;
+    }
+    else
+    {
+        return nullptr;
+    }
+}
+
+//metodo che aggiorna le viariabili che cambiano con il tempo
+void Train_Regional::update()
+{
+    Train* TrainTemp = getTrainAhead();
+    Station* StationTemp = getNextStation();
+    //aggiorno posizione
+    if(verse == 0)
+    {
+        position += round(speed * 60);
+    }
+    else
+    {
+        position -= round(speed * 60);
     }
     
     //aggiorno velocità
-    if(verse = 0)
+    if( ( (StationTemp->GetDistance() - position) <= 20 && verse == 0) || ( (position - StationTemp->GetDistance()) <= 20 && verse == 1) ) //controllo se il treno si trova a 20km dalla stazione
     {
-        if((temp.GetDistance() - position) > MAX_SPEED)
+        if((track == nullptr) && (state != "p")) //se il treno non ha un binario e non è nel parcheggio allora mando una richiesta di arrivo
         {
-            speed = MAX_SPEED;
+            SendArrivalRequest(); //manda la richiesta di arrivo alla stazione
+            if(!checkTrainAhead())//se non ha un treno davanti
+            {
+                if( ( (StationTemp->GetDistance() - position) <= 5 && verse == 0) || ( (position - StationTemp->GetDistance()) <= 5 && verse == 1)  ) //controllo se il treno si trova a 5km dalla stazione
+                {
+                    if(state == "p") //se deve andare nel parcheggio, il treno si ferma perchè il parcheggio si trova a 5km dalla stazione
+                    {
+                        speed = 0;
+                    }
+                    else //altrimenti può andare ad 80km, velocità massima a 5 km dalla stazione
+                    {
+                        speed = 80;
+                    }
+                }
+                else
+                {
+                    speed = MAX_SPEED; //altrimenti può andare alla velocità massima
+                }
+            }
+            else //se ha un treno davanti
+            {
+                if(TrainTemp->getState() == "s")//controlla lo stato del treno davanti
+                {
+                    if(state == "s")
+                    {
+                        if(TrainTemp->getType())//controllo il tipo di treno
+                        {
+                            speed = TrainTemp.getSpeed(); //se sono dello stesso tipo possono andare alla stessa velocità senza problemi
+                        }
+                        else//se il tipo è diverso controllo la velocità del treno
+                        {
+                            if(TrainTemp->getSpeed() >= MAX_SPEED)
+                            {
+                                speed = MAX_SPEED;//se vanno più veloci della velocità massima
+                            }
+                            else
+                            {
+                                TrainTemp-getSpeed();//altrimenti possono andare alla stessa velocità
+                            }
+                        }
+                    }
+                    else
+                    {
+                        
+                    }
+                }
+                else if(TrainTemp->getState() == "p") //se il treno davanti sta andando al parcheggio, controllo lo stato del treno attuale
+                {
+                    if(state = "p") //se sta andando al parcheggio
+                    {
+                        if(TrainTemp->getSpeed() == 0) //controllo se la velocità del treno davanti è zero
+                        {
+                            speed = MAX_SPEED; //se la velocità del treno davanti è zero, vuol dire che è nel parcheggio
+                        }
+                        else
+                        {
+                            if(TrainTemp->getType())//controllo il tipo di treno
+                            {
+                                speed = TrainTemp.getSpeed(); //se sono dello stesso tipo possono andare alla stessa velocità senza problemi
+                            }
+                            else//se il tipo è diverso controllo la velocità del treno
+                            {
+                                if(TrainTemp->getSpeed() >= MAX_SPEED)
+                                {
+                                    speed = MAX_SPEED;//se vanno più veloci della velocità massima
+                                }
+                                else
+                                {
+                                    TrainTemp-getSpeed();//altrimenti possono andare alla stessa velocità
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
-        else if(((temp.GetDistance() - position) <= MAX_SPEED) && (temp.GetDistance() - position) > 20)
+        else if(state == "s") //se il treno ha già mandato una richiesta di arrivo controllo se sta andando in stazione
         {
-            speed = (temp.GetDistance() - position) - 20;
-        }
-        else if((temp.GetDistance() - postion ) <= 20)
-        {
-            speed = 10;
-            sendArrivalRequest();
+            if( ( (StationTemp->GetDistance() - position) <= 5 && verse == 0) || ( (position - StationTemp->GetDistance()) <= 5 && verse == 1) )//se si trova a 5 km dalla stazione
+            {
+                speed = 80;
+            }
+            else if(checkTrainAhead()) //se ha un treno davanti controlla lo stato
+            {
+                if(TrainTemp->getState() == "s") //se sta andando in stazione
+                {
+                    if(TrainTemp->getSpeed() > MAX_SPEED) //se la velocità del treno davanti è maggiore della velocità massima di questo treno
+                    {
+                        speed = MAX_SPEED;
+                    }
+                    else
+                    {
+                        speed = TrainTemp->getSpeed();
+                    }
+                }
+                else //se il treno davanti sta andando nel parcheggio
+                {
+                    if(TrainTemp->getSpeed() == 0) //se il treno davanti è nel parcheggio allora questo può andare alla velocità massima
+                    {
+                        speed = MAX_SPEED;
+                    }
+                    else if(TrainTemp->getSpeed() > MAX_SPEED)
+                    {
+                        speed = MAX_SPEED;
+                    }
+                    else
+                    {
+                        speed = TrainTemp->getSpeed();
+                    }
+                }
+            }
         }
     }
-    else if(verse = 1)
+    else if(checkTrainAhead())//se non si trova a 20km dalla stazione controlla se ha un treno davanti
     {
-        if((temp.GetDistance() - position) < -MAX_SPEED)
+        if(TrainTemp->getSpeed() > MAX_SPEED) //se il treno davanti è più veloce della velocità massima allora questo treno viaggia alla sua velocità massima
         {
             speed = MAX_SPEED;
         }
-        else if(((temp.GetDistance() - position) >= -MAX_SPEED) && (temp.GetDistance() - position) < -20)
+        else
         {
-            speed = -(temp.GetDistance() - position) - 20;
+            speed = TrainTemp->getSpeed(); //altrimenti viaggia alla stessa velocità del treno
         }
-        else if((temp.GetDistance() - postion ) >= -20)
+    }
+    else if(!checkTrainAhead())//se non ha un treno davanti allora può andare alla velocità massima
+    {
+        speed = MAX_SPEED;
+    }
+    else if(StationTemp->GetDistance() == position) //se il treno arriva alla stazione, allora si ferma
+    {
+        speed = 0;
+    }
+    
+    //aggiorno tempo
+    if(wait > 0)//controllo se c'è del tempo da aggiornare
+    {
+        wait -= 1;
+        if(wait == 0) //se il tempo d'attesa è finito
         {
-            speed = 10;
-            sendArrivalRequest();
+            if(state == "s") //controlla lo stato
+            {
+                SendDepartureRequest();//se è in stazione manda una richiesta di partenza
+            }
+            else
+            {
+                SendArrivalRequest();//se è nel parcheggio manda una richiesta di arrivo
+            }
         }
     }
     
-    //aggiorno stato
-    if(speed = 0)
+    //aggiorno stazione
+    if( ( (StationTemp->GetDistance() < position) && verse == 0) || ( (position < StationTemp->GetDistance()) && verse == 1) ) //se il treno ha superato la stazione allora aggiorno la stazione
     {
-        if(track = nullptr) //se il treno è fermo e non ha un binario assegnato, è in un parcheggio
-        {
-            state = "p";
-        }
-        else    //altrimenti è nella stazione
-        {
-            state = "s";
-        }
-    }
-    else //se la velocità non è zero il treno è chiaramente in movimento
-    {
-        state = "v";
+        Current = getNextStation();
     }
 }
