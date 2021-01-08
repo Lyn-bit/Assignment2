@@ -144,7 +144,7 @@ int Train_Regional::GetWaitTime() const
 
 //metodo che imposta lo stato del treno, "s" in stazione, "p" nel parcheggio, "v" in viaggio
 void Train_Regional::setState(string status){
-    state = status;
+    this->state = status;
 }
 
 //metodo che ritorna lo stato del treno, "s" in stazione, "p" nel parcheggio, "v" in viaggio
@@ -190,7 +190,7 @@ bool Train_Regional::checkTrainAhead()
     }
     else
     {
-        return return true;
+        return true;
     }
 }
 
@@ -209,7 +209,7 @@ Train* Train_Regional::getTrainAhead() const
     }
 }
 
-//metodo che aggiorna le viariabili che cambiano con il tempo
+//metodo che aggiorna le variabili che cambiano con il tempo
 void Train_Regional::update()
 {
     Train* TrainTemp = getTrainAhead();
@@ -258,25 +258,33 @@ void Train_Regional::update()
                 {
                     if(state == "s")
                     {
-                        if(TrainTemp->getType())//controllo il tipo di treno
+                        if(TrainTemp->getSpeed() >= MAX_SPEED)
                         {
-                            speed = TrainTemp.getSpeed(); //se sono dello stesso tipo possono andare alla stessa velocità senza problemi
+                            speed = MAX_SPEED;//se vanno più veloci della velocità massima
                         }
-                        else//se il tipo è diverso controllo la velocità del treno
+                        else
+                        {
+                            TrainTemp->getSpeed();//altrimenti possono andare alla stessa velocità
+                        }
+                    }
+                    else //se lo stato del treno è p
+                    {
+                        if(!( ( (StationTemp->GetDistance() - position) <= 5 && verse == 0) || ( (position - StationTemp->GetDistance()) <= 5 && verse == 1) ))//se non si trova a 5 km dalla stazione
                         {
                             if(TrainTemp->getSpeed() >= MAX_SPEED)
+                            
                             {
                                 speed = MAX_SPEED;//se vanno più veloci della velocità massima
                             }
                             else
                             {
-                                TrainTemp-getSpeed();//altrimenti possono andare alla stessa velocità
+                                TrainTemp->getSpeed();//altrimenti possono andare alla stessa velocità
                             }
                         }
-                    }
-                    else
-                    {
-                        
+                        else //se si trova a 5km dalla stazione fermo e parcheggio il treno
+                        {
+                            speed = 0; 
+                        }
                     }
                 }
                 else if(TrainTemp->getState() == "p") //se il treno davanti sta andando al parcheggio, controllo lo stato del treno attuale
@@ -289,20 +297,13 @@ void Train_Regional::update()
                         }
                         else
                         {
-                            if(TrainTemp->getType())//controllo il tipo di treno
+                            if(TrainTemp->getSpeed() >= MAX_SPEED)
                             {
-                                speed = TrainTemp.getSpeed(); //se sono dello stesso tipo possono andare alla stessa velocità senza problemi
+                                speed = MAX_SPEED;//se vanno più veloci della velocità massima
                             }
-                            else//se il tipo è diverso controllo la velocità del treno
+                            else
                             {
-                                if(TrainTemp->getSpeed() >= MAX_SPEED)
-                                {
-                                    speed = MAX_SPEED;//se vanno più veloci della velocità massima
-                                }
-                                else
-                                {
-                                    TrainTemp-getSpeed();//altrimenti possono andare alla stessa velocità
-                                }
+                                TrainTemp->getSpeed();//altrimenti possono andare alla stessa velocità
                             }
                         }
                     }
@@ -336,11 +337,11 @@ void Train_Regional::update()
                     }
                     else if(TrainTemp->getSpeed() > MAX_SPEED)
                     {
-                        speed = MAX_SPEED;
+                        speed = TrainTemp->getSpeed();
                     }
                     else
                     {
-                        speed = TrainTemp->getSpeed();
+                        speed = MAX_SPEED;
                     }
                 }
             }

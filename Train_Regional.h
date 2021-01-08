@@ -76,8 +76,8 @@ private:
     int position;
     const int MAX_SPEED = 160;
     const int MAX_WAIT = 20;
-    int wait;
-    int track;
+    int wait; //tempo d'attesa
+    int track; //binario
     Station* Current; //stazione in cui si trova al momento
     ReadFile* file; //oggetto per controllare la lista delle stazioni
     std::string state; //stato del treno, "s" in stazione, "p" nel parcheggio, "v" in viaggio
