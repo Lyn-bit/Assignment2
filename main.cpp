@@ -10,9 +10,11 @@
 
 int main()
 {
+    /*
     ReadFile rf;
     int counter=0;
     MainStation ms = rf.get_first_Station();
     std::cout << ms.GetName();
     return 0;
+    */
 }

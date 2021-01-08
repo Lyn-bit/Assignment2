@@ -40,9 +40,9 @@ class ReadFile{
         std::list<Train*> modified_train_list() const;
 
         //funzione che ritorna la stazione di partenza
-        MainStation get_first_Station() const;
+        Station* get_First_Station() const;
         //funzione che ritorna l'ultima stazione
-        MainStation get_last_Station() const;
+        Station* get_Last_Station() const;
 
         //funzioni che ritornano liste aggiustate
         std::list<Station*> get_station_list() const;

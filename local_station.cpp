@@ -11,8 +11,8 @@ LocalStation::LocalStation(string name, int type, int distance, const ReadFile& 
 	trains_in_station_{}, tracks_state_{ 0, 0, 0, 0 },
 	trains_ahead_east_{}, trains_ahead_weast_{}, parked_trains_east_{}, parked_trains_weast_{}
 {
-	if (read_file.get_first_Station() == *this) { position_ = 1; }
-	else if (read_file.get_last_Station() == *this) { position_ = 2; }
+	if (read_file.get_First_Station() == this) { position_ = 1; }
+	else if (read_file.get_Last_Station() == this) { position_ = 2; }
 }
 
 // I binari devono essere occupati appena il treno lascia il parcheggio
@@ -392,7 +392,7 @@ void LocalStation::PrintArrivalTime(const Train* t, int time, int delay) const
 {
 
 	// Qunado fa la richiestà ai 20km se non deve andare in parcheggio se no appena lascia il parcheggio, forse serve una funzione GetDealy() dal treno
-	string origin_station = (t->getVerse() == 0) ? read_file_.get_first_Station().GetName() : read_file_.get_last_Station().GetName();
+	string origin_station = (t->getVerse() == 0) ? read_file_.get_First_Station()->GetName() : read_file_.get_Last_Station()->GetName();
 	string train_type;
 	if (t->getType() == 1) { train_type = "Regionale"; }
 	else if (t->getType() == 2) { train_type = "Alta Velocita'"; }
@@ -440,7 +440,7 @@ void LocalStation::AddDelay(int delay, int verse)
 	
 }
 
-int TimeToFree(const list<const Train*>& trains_ahead, const MainStation& s)
+int TimeToFree(const list<const Train*>& trains_ahead, const LocalStation& s)
 {
 	int pos = abs(s.GetDistance() - trains_ahead.back()->getPosition());
 
@@ -455,4 +455,10 @@ int TimeToFree(const list<const Train*>& trains_ahead, const MainStation& s)
 	int time = (s_km / 80) + (f_km / 160);
 
 	return time;
+}
+
+const Train* LocalStation::FindTrain(int track) const
+{
+	////////////////////////////////////////////////////////////
+	return parked_trains_east_[0];
 }

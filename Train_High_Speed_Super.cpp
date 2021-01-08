@@ -8,7 +8,7 @@
 
 using namespace std;
 
-Train_High_Speed_Super::Train_High_Speed_Super(int numero, int tipo, int direzione, list<int> orari, const ReadFile& temp)
+Train_High_Speed_Super::Train_High_Speed_Super(int numero, int tipo, int direzione, list<int> orari, const ReadFile* temp)
 {
     this->id = numero;
     this->verse = direzione;
@@ -96,36 +96,36 @@ int Train_High_Speed_Super::getPosition() const
 }
 
 //metodo che ritorna la stazione in cui il treno si trova al momento
-Station* Train_High_Speed_Super::getCurrentStation() const
+const Station* Train_High_Speed_Super::getCurrentStation() const
 {
     return Current;
 }
     
 //metodo che ritorna la prossima stazione in cui il treno dovrà andare
 //ritorna nullptr se non c'è una prossima stazione
-Station* Train_High_Speed_Super::getNextStation()
+const Station* Train_High_Speed_Super::getNextStation() 
 {
     if(verse = 0)
     {
-        if(File->nextStation(Current) == nullptr)
+        if(file->nextStation(Current) == nullptr)
         {
             return nullptr;
             
         }
         else
         {
-            return File->nextStation(Current);
+            return file->nextStation(Current);
         }
     }
     else
     {
-        if(File->prevStation(Current) == nullptr)
+        if(file->prevStation(Current) == nullptr)
         {
             return nullptr;
         }
         else
         {
-            return File->prevStation(Current);
+            return file->prevStation(Current);
         }
     }
 }
@@ -166,25 +166,25 @@ int Train_High_Speed_Super::GetTrack() const
 }
 
 //metodo che manda una richiesta d'arrivo alla stazione
-pair<int, Station*> Train_High_Speed_Super::SendArrivalRequest()
+pair<int, const Station*> Train_High_Speed_Super::SendArrivalRequest()
 {
-    Station* temp = getNextStation();
-    pair<int, Station*> request {0, temp};
+    const Station* temp = getNextStation();
+    pair<int, const Station*> request {0, temp};
     return request;
 }
 
 //metodo che manda una richiesta di partenza alla stazione
-pair<int, Station*> Train_High_Speed_Super::SendDepartureRequest()
+pair<int, const Station*> Train_High_Speed_Super::SendDepartureRequest()
 {
-    Station* temp = getNextStation();
-    pair<int, Station*> request {1, temp};
+    const Station* temp = getNextStation();
+    pair<int, const Station*> request {1, temp};
     return request;
 }
 
 //controllo se ci sono treni davanti
-bool Train_High_Speed_Super::checkTrainAhead()
+bool Train_High_Speed_Super::checkTrainAhead() const
 {
-    if(Current->getNextTrain(const this) == -1)
+    if(Current->GetNextTrain(this) == -1)
     {
         return false;
     }
@@ -195,12 +195,12 @@ bool Train_High_Speed_Super::checkTrainAhead()
 }
 
 //treno che si trova davanti
-Train* Train_High_Speed_Super::getTrainAhead() const
+const Train* Train_High_Speed_Super::getTrainAhead() const
 {
     if(checkTrainAhead()) //sistema di controllo per capire se ha un treno davanti
     {
-        list<Train*> temp = Current->GetTrainsAhead(verse);
-        Train* NextTrain = temp.back();
+        list<const Train*> temp = Current->GetTrainsAhead(verse);
+        const Train* NextTrain = temp.back();
         return NextTrain;
     }
     else
@@ -212,8 +212,8 @@ Train* Train_High_Speed_Super::getTrainAhead() const
 //metodo che aggiorna le variabili che cambiano con il tempo
 void Train_High_Speed_Super::update()
 {
-    Train* TrainTemp = getTrainAhead();
-    Station* StationTemp = getNextStation();
+    const Train* TrainTemp = getTrainAhead();
+    const Station* StationTemp = getNextStation();
     
     //aggiorno il tempo globale
     GlobalTime++;
@@ -231,7 +231,7 @@ void Train_High_Speed_Super::update()
     //aggiorno velocità
     if( ( (StationTemp->GetDistance() - position) <= 20 && verse == 0) || ( (position - StationTemp->GetDistance()) <= 20 && verse == 1) ) //controllo se il treno si trova a 20km dalla stazione
     {
-        if((track == nullptr) && (state != "p")) //se il treno non ha un binario e non è nel parcheggio allora mando una richiesta di arrivo
+        if((track < 0) && (state != "p")) //se il treno non ha un binario e non è nel parcheggio allora mando una richiesta di arrivo
         {
             SendArrivalRequest(); //manda la richiesta di arrivo alla stazione
             if(!checkTrainAhead())//se non ha un treno davanti
@@ -274,7 +274,7 @@ void Train_High_Speed_Super::update()
                 }
                 else if(TrainTemp->getState() == "p") //se il treno davanti sta andando al parcheggio, controllo lo stato del treno attuale
                 {
-                    if(state = "p") //se sta andando al parcheggio
+                    if(state == "p") //se sta andando al parcheggio
                     {
                         if(TrainTemp->getSpeed() == 0) //controllo se la velocità del treno davanti è zero
                         {

@@ -111,17 +111,17 @@ list<Train*> ReadFile::read_Train()
             list<int> times {next(temp_vect.begin(),3),temp_vect.end()};
             if (type==1)
             {
-                Train_Regional *tr = new Train_Regional{id,verse,type,times};
+                Train_Regional *tr = new Train_Regional{id,verse,type,times, *this};
                 temp.push_back(tr);
             }
             else if (type==2)
             {
-                Train_High_Speed *ths = new Train_High_Speed{id,verse,type,times};
+                Train_High_Speed *ths = new Train_High_Speed{id,verse,type,times, *this };
                 temp.push_back(ths);
             }
             else if (type==3)
             {
-                Train_High_Speed_Super *thss = new Train_High_Speed_Super{id,verse,type,times};
+                Train_High_Speed_Super *thss = new Train_High_Speed_Super{id,verse,type,times, *this };
                 temp.push_back(thss);
             }
             else
@@ -262,7 +262,7 @@ list<Train*> ReadFile::modified_train_list() const
                         }
                     }
                     list<int> times{temp_times.begin(),temp_times.end()};
-                    Train_Regional *tr = new Train_Regional{id,verse,type,times};
+                    Train_Regional *tr = new Train_Regional{id,verse,type,times, *this};
                     temp.push_back(tr);
                 }
                 else if (type==2)
@@ -311,7 +311,7 @@ list<Train*> ReadFile::modified_train_list() const
                         }
                     }
                     list<int> times{temp_times.begin(),temp_times.end()};
-                    Train_High_Speed *ths = new Train_High_Speed{id,verse,type,times};
+                    Train_High_Speed *ths = new Train_High_Speed{id,verse,type,times, *this };
                     temp.push_back(ths);
                 }
                 else if (type==3)
@@ -360,7 +360,7 @@ list<Train*> ReadFile::modified_train_list() const
                         }
                     }
                     list<int> times{temp_times.begin(),temp_times.end()};
-                    Train_High_Speed_Super *thss = new Train_High_Speed_Super{id,verse,type,times};
+                    Train_High_Speed_Super *thss = new Train_High_Speed_Super{id,verse,type,times, *this };
                     temp.push_back(thss);
                 }
                 else
@@ -380,7 +380,7 @@ list<Train*> ReadFile::modified_train_list() const
                         reverse(temp_s.begin(),temp_s.end());
                         //contatore per vector
                         int i=1;
-                        int max_distance = get_last_Station().GetDistance();
+                        int max_distance = get_Last_Station()->GetDistance();
                         auto p=next(temp_s.begin(),1);
                         for (p;p!=temp_s.end();p++)
                         {
@@ -402,7 +402,7 @@ list<Train*> ReadFile::modified_train_list() const
                         reverse(temp_s.begin(),temp_s.end());
                         //contatore per vector
                         int i=1;
-                        int max_distance = get_last_Station().GetDistance();
+                        int max_distance = get_Last_Station()->GetDistance();
                         auto p=next(temp_s.begin(),1);
                         for (p;p!=temp_s.end();p++)
                         {
@@ -422,7 +422,7 @@ list<Train*> ReadFile::modified_train_list() const
                         }
                     }
                     list<int> times{temp_times.begin(),temp_times.end()};
-                    Train_Regional *tr = new Train_Regional{id,verse,type,times};
+                    Train_Regional *tr = new Train_Regional{id,verse,type,times, *this };
                     temp.push_back(tr);
                 }
                 else if (type==2)
@@ -434,7 +434,7 @@ list<Train*> ReadFile::modified_train_list() const
                         reverse(temp_s.begin(),temp_s.end());
                         //contatore per vector
                         int i=1;
-                        int max_distance = get_last_Station().GetDistance();
+                        int max_distance = get_Last_Station()->GetDistance();
                         auto p=next(temp_s.begin(),1);
                         for (p;p!=temp_s.end();p++)
                         {
@@ -455,7 +455,7 @@ list<Train*> ReadFile::modified_train_list() const
                         reverse(temp_s.begin(),temp_s.end());
                         //contatore per vector
                         int i=1;
-                        int max_distance = get_last_Station().GetDistance();
+                        int max_distance = get_Last_Station()->GetDistance();
                         auto p=next(temp_s.begin(),1);
                         for (p;p!=temp_s.end();p++)
                         {
@@ -475,7 +475,7 @@ list<Train*> ReadFile::modified_train_list() const
                         }
                     }
                     list<int> times{temp_times.begin(),temp_times.end()};
-                    Train_High_Speed *ths = new Train_High_Speed{id,verse,type,times};
+                    Train_High_Speed *ths = new Train_High_Speed{id,verse,type,times, *this };
                     temp.push_back(ths);
             }
                 else if (type==3)
@@ -487,7 +487,7 @@ list<Train*> ReadFile::modified_train_list() const
                         reverse(temp_s.begin(),temp_s.end());
                         //contatore per vector
                         int i=1;
-                        int max_distance = get_last_Station().GetDistance();
+                        int max_distance = get_Last_Station()->GetDistance();
                         auto p=next(temp_s.begin(),1);
                         for (p;p!=temp_s.end();p++)
                         {
@@ -508,7 +508,7 @@ list<Train*> ReadFile::modified_train_list() const
                         reverse(temp_s.begin(),temp_s.end());
                         //contatore per vector
                         int i=1;
-                        int max_distance = get_last_Station().GetDistance();
+                        int max_distance = get_Last_Station()->GetDistance();
                         auto p=next(temp_s.begin(),1);
                         for (p;p!=temp_s.end();p++)
                         {
@@ -528,7 +528,7 @@ list<Train*> ReadFile::modified_train_list() const
                         }
                     }
                     list<int> times{temp_times.begin(),temp_times.end()};
-                    Train_High_Speed_Super *thss = new Train_High_Speed_Super{id,verse,type,times};
+                    Train_High_Speed_Super *thss = new Train_High_Speed_Super{id,verse,type,times, *this };
                     temp.push_back(thss);
                 }
                 else
@@ -546,20 +546,20 @@ list<Train*> ReadFile::modified_train_list() const
 }
 
 //funzione che restituisce la prima stazione(origine)
-MainStation ReadFile::get_first_Station() const
+Station* ReadFile::get_First_Station() const
 {
     list<Station*> temp = modified_station_list();
     auto p=temp.begin();
-    MainStation ms {(*p)->GetName(),(*p)->GetType(),(*p)->GetDistance(),*this};
-    return ms;
+    //Station* ms = new MainStation{ (*p)->GetName(), (*p)->GetType(), (*p)->GetDistance(), *this };
+    return *p;
 }
 //funzione che restituisce l'ultima stazione
-MainStation ReadFile::get_last_Station() const
+Station* ReadFile::get_Last_Station() const
 {
     list<Station*> temp = modified_station_list();
     auto p=prev(temp.begin(),1);
-    MainStation ms {(*p)->GetName(),(*p)->GetType(),(*p)->GetDistance(),*this};
-    return ms;
+    //Station* ms = new MainStation{(*p)->GetName(), (*p)->GetType(), (*p)->GetDistance(), *this};
+    return *p;
 }
 
 //funzioni che ritornano liste aggiustate
@@ -592,7 +592,7 @@ list<Station*> ReadFile::get_main_station_list() const
 //ritorna nullptr nei casi estremi
 const Station* ReadFile::nextStation(const Station* s) const
 {
-    if (s->GetName()==get_last_Station().GetName())
+    if (s->GetName()==get_Last_Station()->GetName())
     {
         cout << "It the last Station" << endl;
         return nullptr;
@@ -607,7 +607,7 @@ const Station* ReadFile::nextStation(const Station* s) const
 }
 const Station* ReadFile::prevStation(const Station* s) const
 {
-    if (s->GetName()==get_first_Station().GetName())
+    if (s->GetName()==get_First_Station()->GetName())
     {
         cout << "It the first Station" << endl;
         return nullptr;

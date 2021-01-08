@@ -2,18 +2,22 @@
 
 #include "main_station.h"
 
+///////
+#include "ReadFile.h"
+
+
 #define PARK_TO_STATION_TIME 4
 
 using namespace std;
 
 
-MainStation::MainStation(string name, int type, int distance, const ReadFile &read_file) :
+MainStation::MainStation(string name, int type, int distance, const ReadFile& read_file) :
 	name_{name}, type_{type}, distance_{distance}, position_{-1}, read_file_{read_file},
 	trains_in_station_{}, tracks_state_{0, 0, 0, 0},
 	trains_ahead_east_{}, trains_ahead_weast_{}, parked_trains_east_{}, parked_trains_weast_{}
 {
-	if (read_file.get_first_Station() == *this) { position_ = 1; }
-	else if (read_file.get_last_Station() == *this) { position_= 2; }
+	if (read_file.get_First_Station() == this) { position_ = 1; }
+	else if (read_file.get_Last_Station() == this) { position_= 2; }
 }
 
 // I binari devono essere occupati appena il treno lascia il parcheggio
@@ -212,7 +216,7 @@ void MainStation::PrintArrivalTime(const Train* t, int time, int delay) const
 {
 	
 	// Qunado fa la richiestà ai 20km se non deve andare in parcheggio se no appena lascia il parcheggio, forse serve una funzione GetDealy() dal treno
-	string origin_station = (t->getVerse() == 0) ? read_file_.get_first_Station().GetName() : read_file_.get_last_Station().GetName();
+	string origin_station = (t->getVerse() == 0) ? read_file_.get_First_Station()->GetName() : read_file_.get_Last_Station()->GetName();
 	string train_type;
 	if (t->getType() == 1) { train_type = "Regionale"; }
 	else if (t->getType() == 2) { train_type = "Alta Velocita'"; }
