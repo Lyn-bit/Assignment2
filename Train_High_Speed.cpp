@@ -1,10 +1,10 @@
 //Ciccone Davide
 
-#include "Train_High_Speed.h"
+#include "Train.h"
+
 #include <list>
-#include "station.h"
-#include "ReadFile.h"
 #include <utility>
+#include <cmath>
 
 using namespace std;
 
@@ -137,14 +137,15 @@ void Train_High_Speed::SetWaitTime(int waitTime)
 }
 
 //metodo che ritorna il tempo di attesa del treno
-int Train_High_Speed::GetWaitTime() const
+int Train_High_Speed::GetTimeLeft() const
 {
     return wait;
 }
 
-//metodo che imposta lo stato del treno, "s" in stazione, "p" nel parcheggio, "v" in viaggio
-void Train_High_Speed::setState(string status){
-    this->state = status;
+//metodo che ritorna il tempo che il treno ha aspettato
+int Train_High_Speed::GetWaitTime() const
+{
+    return TimePassed;
 }
 
 //metodo che ritorna lo stato del treno, "s" in stazione, "p" nel parcheggio, "v" in viaggio
@@ -371,6 +372,7 @@ void Train_High_Speed::update()
     if(wait > 0)//controllo se c'è del tempo da aggiornare
     {
         wait -= 1;
+        TimePassed++;
         if(wait == 0) //se il tempo d'attesa è finito
         {
             if(state == "s") //controlla lo stato

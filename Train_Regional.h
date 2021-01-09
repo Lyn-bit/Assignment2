@@ -25,9 +25,6 @@ public:
     std::list<int> getTimes() const override; //metodo che ritorna la lista degli orari
     int getSpeed() const override; //metodo che ritorna la velocità del treno
     int getPosition() const override; //metodo che ritorna la posizione del treno
-
-    /////
-    int GetTimeLeft() override { return 0; }
     
     //metodo che controlla se c'è un ritardo nel tempo
     bool checkDelay() override;
@@ -43,6 +40,8 @@ public:
     //metodo che imposta il tempo di attesa del treno
     void SetWaitTime(int waitTime) override;
     //metodo che ritorna il tempo di attesa del treno
+    int GetTimeLeft() const override;
+    //metodo che ritorna il tempo che il treno ha aspettato
     int GetWaitTime() const override;
     
     //metodo che imposta il binario in cui il treno dovrà andare
@@ -86,6 +85,7 @@ private:
     std::string state; //stato del treno, "s" in stazione, "p" nel parcheggio, "v" in viaggio
     int GlobalTime = 0; //ora globale
     int delay = 0; //eventuale tempo di ritardo
+    int TimePassed = 0; //tempo che è rimasto fermo
 };
 
 #endif // TRAIN_REGIONAL_H
