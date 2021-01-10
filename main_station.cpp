@@ -24,9 +24,9 @@ int TimeToFree(const list<const Train*>& trains_ahead, const Station& a)
 	return time;
 }
 
-bool operator==(const Station& s_one, const Station& s_two) { return true; }
+bool operator==(const Station& s_one, const Station& s_two) { return s_one.GetName() == s_two.GetName(); }
 
-std::string FormatTime(int min) 
+std::string FormatTime(int min)
 {
 	int m = min % 60;
 	int h = min / 60;
@@ -48,7 +48,7 @@ MainStation::MainStation(string name, int type, int distance, const ReadFile& re
 	trains_in_station_{}, tracks_state_{ 0, 0, 0, 0 },
 	trains_ahead_east_{}, trains_ahead_weast_{}, parked_trains_east_{}, parked_trains_weast_{}
 {
-	
+
 }
 
 int MainStation::Position(const ReadFile& read_file) const
