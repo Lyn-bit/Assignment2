@@ -10,16 +10,21 @@ class Train
 {
 public:
 
-	virtual int getMaxSpeed() const = 0; //metodo che ritorna la velocit‡ massima
+	virtual int getMaxSpeed() const = 0; //metodo che ritorna la velocit√† massima
 	virtual int getMaxWait() const = 0; //metodo che ritorna il tempo d'attesa massimo
 	virtual int getId() const = 0; //metodo che ritorna l'id del treno
 	virtual int getVerse() const = 0; //metodo che ritorna il verso del treno
 	virtual int getType() const = 0; //metodo che ritorna il tipo di treno
 	virtual std::list<int> getTimes() const = 0; //metodo che ritorna la lista degli orari
-	virtual int getSpeed() const = 0; //metodo che ritorna la velocit‡ del treno
+	virtual int getSpeed() const = 0; //metodo che ritorna la velocit√† del treno
 	virtual int getPosition() const = 0; //metodo che ritorna la posizione del treno
 
-	//metodo che controlla se c'Ë un ritardo nel tempo
+    //Stazione Attuale
+    virtual const Station* Current() = 0;
+    //ReadFile
+    virtual const ReadFile* file() = 0;
+    
+	//metodo che controlla se c'√® un ritardo nel tempo
 	virtual bool checkDelay() = 0;
 	//metodo che ritorna un eventuale tempo di ritardo
 	virtual int getDelay() const = 0;
@@ -27,7 +32,7 @@ public:
 	//metodo che ritorna la stazione in cui il treno si trova al momento
 	virtual const Station* getCurrentStation() const = 0;
 
-	//metodo che ritorna la prossima stazione in cui il treno dovr‡ andare
+	//metodo che ritorna la prossima stazione in cui il treno dovr√† andare
 	virtual const Station* getNextStation() = 0;
 
 	//metodo che imposta il tempo di attesa del treno
@@ -42,9 +47,9 @@ public:
 	//metodo che ritorna lo stato del treno, "s" in stazione, "p" nel parcheggio, "v" in viaggio
 	virtual std::string getState() const = 0;
 
-	//metodo che imposta il binario in cui il treno dovr‡ andare
+	//metodo che imposta il binario in cui il treno dovr√† andare
 	virtual void SetTrack(int trackNumber) = 0;
-	//metodo che ritorna il binario in cui il treno dovr‡ andare
+	//metodo che ritorna il binario in cui il treno dovr√† andare
 	virtual int GetTrack() const = 0;
 
 	//metodo che invia una richiesta d'arrivo alla stazione
@@ -70,16 +75,21 @@ public:
 	Train_Regional(int numero, int tipo, int direzione, std::list<int> orari, const ReadFile* temp);
 	//~Train_Regional();
 
-	int getMaxSpeed() const override; //metodo che ritorna la velocit‡ massima del treno
+	int getMaxSpeed() const override; //metodo che ritorna la velocit√† massima del treno
 	int getMaxWait() const override; //metodo che ritorna il tempo d'attesa massimo del treno
 	int getId() const override; //metodo che ritorna l'id del treno
 	int getVerse() const override; //metodo che ritorna il verso del treno
 	int getType() const override; //metodo che ritorna il tipo di treno
 	std::list<int> getTimes() const override; //metodo che ritorna la lista degli orari
-	int getSpeed() const override; //metodo che ritorna la velocit‡ del treno
+	int getSpeed() const override; //metodo che ritorna la velocit√† del treno
 	int getPosition() const override; //metodo che ritorna la posizione del treno
 
-	//metodo che controlla se c'Ë un ritardo nel tempo
+    //Stazione Attuale
+    const Station* Current() override;
+    //ReadFile
+    const ReadFile* file() override;
+    
+	//metodo che controlla se c'√® un ritardo nel tempo
 	bool checkDelay() override;
 	//metodo che ritorna un eventuale tempo di ritardo
 	int getDelay() const override;
@@ -87,7 +97,7 @@ public:
 	//metodo che ritorna la stazione in cui il treno si trova al momento
 	const Station* getCurrentStation() const override;
 
-	//metodo che ritorna la prossima stazione in cui il treno dovr‡ andare
+	//metodo che ritorna la prossima stazione in cui il treno dovr√† andare
 	const Station* getNextStation() override;
 
 	//metodo che imposta il tempo di attesa del treno
@@ -97,9 +107,9 @@ public:
 	//metodo che ritorna il tempo che il treno ha aspettato
 	int GetWaitTime() const override;
 
-	//metodo che imposta il binario in cui il treno dovr‡ andare
+	//metodo che imposta il binario in cui il treno dovr√† andare
 	void SetTrack(int trackNumber) override;
-	//metodo che ritorna il binario in cui il treno dovr‡ andare
+	//metodo che ritorna il binario in cui il treno dovr√† andare
 	int GetTrack() const override;
 
 	//metodo che imposta lo stato del treno, "s" in stazione, "p" nel parcheggio, "v" in viaggio
@@ -128,7 +138,7 @@ private:
 	int type;
 	std::list<int> times;
 	int speed;
-	int position;
+	int position = 0;
 	const int MAX_SPEED = 160;
 	const int MAX_WAIT = 20;
 	int wait; //tempo d'attesa
@@ -138,7 +148,7 @@ private:
 	std::string state; //stato del treno, "s" in stazione, "p" nel parcheggio, "v" in viaggio
 	int GlobalTime = 0; //ora globale
 	int delay = 0; //eventuale tempo di ritardo
-	int TimePassed = 0; //tempo che Ë rimasto fermo
+	int TimePassed = 0; //tempo che √® rimasto fermo
 };
 
 class Train_High_Speed_Super : public Train
@@ -147,16 +157,21 @@ public:
 	Train_High_Speed_Super(int numero, int tipo, int direzione, std::list<int> orari, const ReadFile* temp);
 	//~Train_High_Speed_Super();
 
-	int getMaxSpeed() const override; //metodo che ritorna la velocit‡ massima del treno
+	int getMaxSpeed() const override; //metodo che ritorna la velocit√† massima del treno
 	int getMaxWait() const override; //metodo che ritorna il tempo d'attesa massimo del treno
 	int getId() const override; //metodo che ritorna l'id del treno
 	int getVerse() const override; //metodo che ritorna il verso del treno
 	int getType() const override; //metodo che ritorna il tipo di treno
 	std::list<int> getTimes() const override; //metodo che ritorna la lista degli orari
-	int getSpeed() const override; //metodo che ritorna la velocit‡ del treno
+	int getSpeed() const override; //metodo che ritorna la velocit√† del treno
 	int getPosition() const override; //metodo che ritorna la posizione del treno
 
-	//metodo che controlla se c'Ë un ritardo nel tempo
+    //Stazione Attuale
+    const Station* Current() override;
+    //ReadFile
+    const ReadFile* file() override;
+    
+	//metodo che controlla se c'√® un ritardo nel tempo
 	bool checkDelay() override;
 	//metodo che ritorna un eventuale tempo di ritardo
 	int getDelay() const override;
@@ -164,7 +179,7 @@ public:
 	//metodo che ritorna la stazione in cui il treno si trova al momento
 	const Station* getCurrentStation() const override;
 
-	//metodo che ritorna la prossima stazione in cui il treno dovr‡ andare
+	//metodo che ritorna la prossima stazione in cui il treno dovr√† andare
 	const Station* getNextStation() override;
 
 	//metodo che imposta il tempo di attesa del treno
@@ -174,9 +189,9 @@ public:
 	//metodo che ritorna il tempo che il treno ha aspettato
 	int GetWaitTime() const override;
 
-	//metodo che imposta il binario in cui il treno dovr‡ andare
+	//metodo che imposta il binario in cui il treno dovr√† andare
 	void SetTrack(int trackNumber) override;
-	//metodo che ritorna il binario in cui il treno dovr‡ andare
+	//metodo che ritorna il binario in cui il treno dovr√† andare
 	int GetTrack() const override;
 
 	//metodo che imposta lo stato del treno, "s" in stazione, "p" nel parcheggio, "v" in viaggio
@@ -205,7 +220,7 @@ private:
 	int type;
 	std::list<int> times;
 	int speed;
-	int position;
+	int position = 0;
 	const int MAX_SPEED = 300;
 	const int MAX_WAIT = 5;
 	int wait; //tempo d'attesa
@@ -215,7 +230,7 @@ private:
 	std::string state; //stato del treno, "s" in stazione, "p" nel parcheggio, "v" in viaggio
 	int GlobalTime = 0; //ora globale
 	int delay = 0; //eventuale tempo di ritardo
-	int TimePassed = 0; //tempo che Ë rimasto fermo
+	int TimePassed = 0; //tempo che √® rimasto fermo
 };
 
 class Train_High_Speed : public Train
@@ -224,16 +239,21 @@ public:
 	Train_High_Speed(int numero, int tipo, int direzione, std::list<int> orari, const ReadFile* temp);
 	//~Train_High_Speed();
 
-	int getMaxSpeed() const override; //metodo che ritorna la velocit‡ massima del treno
+	int getMaxSpeed() const override; //metodo che ritorna la velocit√† massima del treno
 	int getMaxWait() const override; //metodo che ritorna il tempo d'attesa massimo del treno
 	int getId() const override; //metodo che ritorna l'id del treno
 	int getVerse() const override; //metodo che ritorna il verso del treno
 	int getType() const override; //metodo che ritorna il tipo di treno
 	std::list<int> getTimes() const override; //metodo che ritorna la lista degli orari
-	int getSpeed() const override; //metodo che ritorna la velocit‡ del treno
+	int getSpeed() const override; //metodo che ritorna la velocit√† del treno
 	int getPosition() const override; //metodo che ritorna la posizione del treno
 
-	//metodo che controlla se c'Ë un ritardo nel tempo
+    //Stazione Attuale
+    const Station* Current() override;
+    //ReadFile
+    const ReadFile* file() override;
+    
+	//metodo che controlla se c'√® un ritardo nel tempo
 	bool checkDelay() override;
 	//metodo che ritorna un eventuale tempo di ritardo
 	int getDelay() const override;
@@ -241,7 +261,7 @@ public:
 	//metodo che ritorna la stazione in cui il treno si trova al momento
 	const Station* getCurrentStation() const override;
 
-	//metodo che ritorna la prossima stazione in cui il treno dovr‡ andare
+	//metodo che ritorna la prossima stazione in cui il treno dovr√† andare
 	const Station* getNextStation() override;
 
 	//metodo che imposta il tempo di attesa del treno
@@ -251,9 +271,9 @@ public:
 	//metodo che ritorna il tempo che il treno ha aspettato
 	int GetWaitTime() const override;
 
-	//metodo che imposta il binario in cui il treno dovr‡ andare
+	//metodo che imposta il binario in cui il treno dovr√† andare
 	void SetTrack(int trackNumber) override;
-	//metodo che ritorna il binario in cui il treno dovr‡ andare
+	//metodo che ritorna il binario in cui il treno dovr√† andare
 	int GetTrack() const override;
 
 	//metodo che imposta lo stato del treno, "s" in stazione, "p" nel parcheggio, "v" in viaggio
@@ -282,7 +302,7 @@ private:
 	int type;
 	std::list<int> times;
 	int speed;
-	int position;
+	int position = 0;
 	const int MAX_SPEED = 240;
 	const int MAX_WAIT = 15;
 	int wait; //tempo d'attesa
@@ -292,7 +312,7 @@ private:
 	std::string state; //stato del treno, "s" in stazione, "p" nel parcheggio, "v" in viaggio
 	int GlobalTime = 0; //ora globale
 	int delay = 0; //eventuale tempo di ritardo
-	int TimePassed = 0; //tempo che Ë rimasto fermo
+	int TimePassed = 0; //tempo che √® rimasto fermo
 };
 
 
