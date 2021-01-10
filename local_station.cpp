@@ -1,6 +1,6 @@
 //Stojna Lorei
 
-#include "Train.h"
+#include "station.h"
 
 
 #define PARK_TO_STATION_TIME 4
