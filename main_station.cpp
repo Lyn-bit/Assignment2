@@ -2,113 +2,74 @@
 
 #include "station.h"
 
-
 #define PARK_TO_STATION_TIME 4
 
 using namespace std;
 
-int TimeToFree(const list<const Train*>& trains_ahead, const Station& a)
+MainStation::MainStation(string name, int type, int distance, const ReadFile &read_file) : name_{name}, type_{type}, distance_{distance}, read_file_{read_file},
+																						   trains_in_station_{}, tracks_state_{0, 0, 0, 0},
+																						   trains_ahead_east_{}, trains_ahead_weast_{}, parked_trains_east_{}, parked_trains_weast_{}
 {
-	int pos = abs(a.GetDistance() - trains_ahead.back()->getPosition());
-
-	int s_km{ 0 };
-	int f_km{ 5 };
-	if (pos < 5) { s_km = pos - 5; }
-	else { f_km = (pos - 5) + 5; }
-
-	// nei 5km "veloci" utilizza la velocià del treno regionale
-	// cosi nel caso pessimo il treno aspettera del tempo in più
-	// ma i 10km saranno sempre risettati
-	int time = (s_km / 80) + (f_km / 160);
-
-	return time;
-}
-
-bool operator==(const Station& s_one, const Station& s_two) { return s_one.GetName() == s_two.GetName(); }
-
-std::string FormatTime(int min)
-{
-	int m = min % 60;
-	int h = min / 60;
-	int d = h / 24;
-	h -= d * 24;
-
-	string minute = (m < 10) ? "0" + to_string(m) : to_string(m);
-	string hour = (h < 10) ? "0" + to_string(h) : to_string(h);
-	string day = (d > 0) ? " Giorno +" + to_string(d) : "";
-
-	string time = hour + ":" + minute + day;
-
-	return time;
-}
-
-
-MainStation::MainStation(string name, int type, int distance, const ReadFile& read_file) :
-	name_{ name }, type_{ type }, distance_{ distance }, read_file_{ read_file },
-	trains_in_station_{}, tracks_state_{ 0, 0, 0, 0 },
-	trains_ahead_east_{}, trains_ahead_weast_{}, parked_trains_east_{}, parked_trains_weast_{}
-{
-
-}
-
-int MainStation::Position(const ReadFile& read_file) const
-{
-	if (read_file.get_First_Station() == this) { return 1; }
-	else if (read_file.get_Last_Station() == this) { return 2; }
-	return -1;
 }
 
 // I binari devono essere occupati appena il treno lascia il parcheggio
 // (e forse appena fa la riechiesta se gia disponibile)
-void MainStation::ArrivalRequest(Train* t)
+void MainStation::ArrivalRequest(Train *t)
 {
 	/*
 	* Se stazione origine o capolinea ( in base al verso del treno)
 	* devono comunque stare i 5 min per far scendere i passeggieri
-	* La cosa diversa è che la lista trains_aheadeast/east e train_p_east/weast (se orig. o capol.)
+	* La cosa diversa ï¿½ che la lista trains_aheadeast/east e train_p_east/weast (se orig. o capol.)
 	* non ci saranno
 	*/
 
-	vector<Train*>& trains = parked_trains_east_;
+	vector<Train *> &trains = parked_trains_east_;
 	trains = (t->getVerse() == 0) ? trains = parked_trains_east_ : trains = parked_trains_weast_;
 
 	int estimated_arrival_time = GetEstimatedArrivalTime(t);
 	vector<int> track_info = TrackStatus(t);
 	int odd_tracks = (trains.size() / 2) + 1;
 	int evene_tracks = trains.size() - odd_tracks;
-	// se all arrivo trova libero il binario più veloce lo metto la
+	// se all arrivo trova libero il binario piï¿½ veloce lo metto la
 	if (estimated_arrival_time > (track_info[0] + (odd_tracks * 5)))
 	{
-		t->SetTrack(track_info[1]); t->SetWaitTime(0);
+		t->SetTrack(track_info[1]);
+		t->SetWaitTime(0);
+		t->setState("s");
 	}
-	// se all arrivo trova libero il binario più "lento" lo metto la
+	// se all arrivo trova libero il binario piï¿½ "lento" lo metto la
 	//else if (estimated_arrival_time > (track_info[2] + (evene_tracks * 5)))
 	//{
-		//t.SetTrack(track_info[3]); t.SetWaitTime(0);
+	//t.SetTrack(track_info[3]); t.SetWaitTime(0);
 	//}
 	// altri casi
 	else
 		AddParkedTrain(t);
 }
 
-bool MainStation::DepartureRequest(Train* t)
+bool MainStation::DepartureRequest(Train *t)
 {
 	/*
 	*
-	* Una Volta arrivati al capolinea/origine (in base al verso) non devono più partire ma scompaiono e basta
+	* Una Volta arrivati al capolinea/origine (in base al verso) non devono piï¿½ partire ma scompaiono e basta
 	*
 	*/
 
-
 	/*devo gestire i casi che la richiesta venga col trenp
 	che si ttrova in stazione o in parcheggio*/
-	vector<Train*>& parked_trains = parked_trains_east_;
-	if (t->getVerse() == 0) { parked_trains = parked_trains_weast_; }
+	vector<Train *> &parked_trains = parked_trains_east_;
+	if (t->getVerse() == 0)
+	{
+		parked_trains = parked_trains_weast_;
+	}
 
-	list<const Train*>& trains_ahead = trains_ahead_east_;
-	if (t->getVerse() == 0) { trains_ahead = trains_ahead_weast_; }
+	list<const Train *> &trains_ahead = trains_ahead_east_;
+	if (t->getVerse() == 0)
+	{
+		trains_ahead = trains_ahead_weast_;
+	}
 
-	// Se si trova in parcheggio devo vedere se il suo binario è stato liberato
+	// Se si trova in parcheggio devo vedere se il suo binario ï¿½ stato liberato
 	if (t->getState() == "p")
 	{
 		// devo fare un pop, aggiungere il treno in stazione e aggioranre lo stato del ritardo
@@ -119,9 +80,11 @@ bool MainStation::DepartureRequest(Train* t)
 			tracks_state_[t->GetTrack()] = PARK_TO_STATION_TIME + 5;
 			trains_in_station_.push_back(parked_trains[0]);
 			parked_trains.erase(parked_trains.begin());
-			// Controlla se è stazione origine o capolinea 
+			// Controlla se ï¿½ stazione origine o capolinea
 			if (t->getVerse() == 0 && Position(read_file_) != 2 || t->getVerse() == 1 && Position(read_file_) != 1)
 				trains_ahead.push_back(t);
+			t->setState("s");
+			PrintDepartureTime(t, t->getTime());
 			return true;
 		}
 		// se no tutti gli altri treni devono aumentare l'attesa e anche lui
@@ -136,7 +99,7 @@ bool MainStation::DepartureRequest(Train* t)
 	}
 
 	// Se si trova in stazione constrollo che non ci siano treni a meno di 10km di fronte
-	// e se il treno nel altro binario ha priorità maggiore
+	// e se il treno nel altro binario ha prioritï¿½ maggiore
 	if (t->getState() == "s")
 	{
 		// Controllo se laltro treno h auna priorita piu alta
@@ -148,7 +111,7 @@ bool MainStation::DepartureRequest(Train* t)
 					parked_trains[i]->SetWaitTime(parked_trains[i]->GetTimeLeft() + delay);
 				return false;
 			}
-		// Se non può partire perche ci sono treni davanti aumnetare il ritardo del treno e di quelli
+		// Se non puï¿½ partire perche ci sono treni davanti aumnetare il ritardo del treno e di quelli
 		// che lo precedono nel parcheggio
 		if (abs(distance_ - trains_ahead.back()->getPosition()) < 5)
 		{
@@ -163,14 +126,16 @@ bool MainStation::DepartureRequest(Train* t)
 				parked_trains[i]->SetWaitTime(parked_trains[i]->GetTimeLeft() + delay);
 			return false;
 		}
-		// Se può partire
+		// Se puï¿½ partire
 		else
 		{
 			tracks_state_[t->GetTrack()] = 0;
 			trains_in_station_.remove(t);
-			// Controlla se è stazione origine o capolinea 
+			// Controlla se ï¿½ stazione origine o capolinea
 			if (t->getVerse() == 0 && Position(read_file_) != 2 || t->getVerse() == 1 && Position(read_file_) != 1)
 				trains_ahead.push_back(t);
+			PrintDepartureTime(t, t->getTime());
+			t->setState("v");
 			return true;
 		}
 	}
@@ -180,7 +145,7 @@ void MainStation::Update()
 {
 	/*
 	*
-	* Una Volta arrivati al capolinea/origine (in base al verso) non devono più partire ma scompaiono e basta
+	* Una Volta arrivati al capolinea/origine (in base al verso) non devono piï¿½ partire ma scompaiono e basta
 	*
 	*/
 
@@ -212,15 +177,33 @@ void MainStation::Update()
 			trains_ahead_weast_.erase(i);
 }
 
-int MainStation::GetNextTrain(const Train* t) const
+int MainStation::Position(const ReadFile &read_file) const
+{
+	if (read_file.get_First_Station() == this)
+	{
+		return 1;
+	}
+	else if (read_file.get_Last_Station() == this)
+	{
+		return 2;
+	}
+	return -1;
+}
+
+void MainStation::SetTypeVoid() { type_ = -1; }
+
+int MainStation::GetNextTrain(const Train *t) const
 {
 	/*
 	*
 	* capolinea/origine
 	*
 	*/
-	list<const Train*> trains = trains_ahead_east_;
-	if (t->getVerse() == 0) { trains = trains_ahead_weast_; }
+	list<const Train *> trains = trains_ahead_east_;
+	if (t->getVerse() == 0)
+	{
+		trains = trains_ahead_weast_;
+	}
 
 	auto it_next_train = find(trains.begin(), trains.end(), t);
 	if (it_next_train == trains.end())
@@ -232,42 +215,153 @@ int MainStation::GetNextTrain(const Train* t) const
 string MainStation::GetName() const { return name_; }
 int MainStation::GetType() const { return type_; }
 int MainStation::GetDistance() const { return distance_; }
-list<const Train*> MainStation::GetTrainsAhead(int verse) const
+
+list<const Train *> MainStation::GetTrainsAhead(int verse) const
 {
-	if (verse == 0) { return trains_ahead_weast_; }
-	else { return trains_ahead_east_; }
+	if (verse == 0)
+	{
+		return trains_ahead_weast_;
+	}
+	else
+	{
+		return trains_ahead_east_;
+	}
 }
 
-void MainStation::PrintDepartureTime(const Train* t, int time) const
+void MainStation::PrintDepartureTime(const Train *t, int time) const
 {
 	/*Non completo( manca caso ultima stazione)
 	oppure nell'ultima stazione no viene mai chiamata la funzione*/
 	string next_station = (t->getVerse() == 0) ? read_file_.nextStation(this)->GetName() : read_file_.prevStation(this)->GetName();
 
 	string train_type;
-	if (t->getType() == 1) { train_type = "Regionale"; }
-	else if (t->getType() == 2) { train_type = "Alta Velocita'"; }
-	else { train_type = "Alta Velocita' Super"; }
+	if (t->getType() == 1)
+	{
+		train_type = "Regionale";
+	}
+	else if (t->getType() == 2)
+	{
+		train_type = "Alta Velocita'";
+	}
+	else
+	{
+		train_type = "Alta Velocita' Super";
+	}
 	cout << "Il treno " + train_type + " numero " << t->getId() << " diretto a " + next_station << " e' in partenza dal binario " << t->GetTrack() << "\t" + FormatTime(time) << endl;
 }
-void MainStation::PrintArrivalTime(const Train* t, int time, int delay) const
+void MainStation::PrintArrivalTime(const Train *t, int time, int delay) const
 {
 
-	// Qunado fa la richiestà ai 20km se non deve andare in parcheggio se no appena lascia il parcheggio, forse serve una funzione GetDealy() dal treno
+	// Qunado fa la richiestï¿½ ai 20km se non deve andare in parcheggio se no appena lascia il parcheggio, forse serve una funzione GetDealy() dal treno
 	string origin_station = (t->getVerse() == 0) ? read_file_.get_First_Station()->GetName() : read_file_.get_Last_Station()->GetName();
 	string train_type;
-	if (t->getType() == 1) { train_type = "Regionale"; }
-	else if (t->getType() == 2) { train_type = "Alta Velocita'"; }
-	else { train_type = "Alta Velocita' Super"; }
+	if (t->getType() == 1)
+	{
+		train_type = "Regionale";
+	}
+	else if (t->getType() == 2)
+	{
+		train_type = "Alta Velocita'";
+	}
+	else
+	{
+		train_type = "Alta Velocita' Super";
+	}
 
 	string t_delay = "";
-	if (delay > 0) { t_delay = "R " + to_string(delay); }
+	if (delay > 0)
+	{
+		t_delay = "R " + to_string(delay);
+	}
 
 	cout << "Il treno " + train_type + " numero " << t->getId() << " in arrivo da " + origin_station << " e' in arrivo al binario " << t->GetTrack() << delay << "\t" + FormatTime(time) << endl;
 }
 
+void MainStation::AddParkedTrain(Train *t)
+{
+	/*
+	*
+	* capolinea/origine
+	*
+	*/
+	t->setState("p");
 
-vector<int> MainStation::TrackStatus(const Train* t) const
+	vector<Train *> &trains = parked_trains_east_;
+	trains = (t->getVerse() == 0) ? trains = parked_trains_east_ : trains = parked_trains_weast_;
+
+	int estimated_arrival = GetEstimatedArrivalTime(t);
+	// Controlla solo il binario piï¿½ veloce
+	int track = TrackStatus(t)[1];
+	// Imposta subito il binario del treno
+	t->SetTrack(track);
+
+	for (; track < trains.size(); track += 2)
+	{
+		// devo vedere se il tempo d'arrivo ï¿½ < o > dei treni che lo confronto
+		if (ComparePriority(t, trains[track]) && estimated_arrival < trains[track]->GetTimeLeft())
+		{
+			trains.insert(trains.begin() + track, t);
+			break;
+		}
+	}
+	trains.push_back(t);
+
+	/*
+	impostare il tempo d'attesa del treno appena aggiunto
+	*/
+	int wait_time{0};
+	int i = TrackStatus(t)[1] % 2;
+	for (; i < track || i < trains.size(); i += 2)
+		if (estimated_arrival < trains[track]->GetTimeLeft() + 5)
+			wait_time += estimated_arrival - (trains[track]->GetTimeLeft() + 5);
+	t->SetWaitTime(wait_time);
+
+	// Aggiorno l'attesa per gli eventuali treni che sono stati spostati
+	// a prioritï¿½ piï¿½ bassa
+	/*devo sapere l'orario d'arrivo in parcheggio del treno*/
+	int time_to_add = wait_time + 5;
+	if (track < trains.size())
+		for (; track < trains.size(); track += 2)
+		{
+			int prev_time = trains[track]->GetTimeLeft();
+			trains[track]->SetWaitTime(prev_time + time_to_add);
+		}
+	//else
+	//{
+	//	trains.push_back(t);
+	//}
+}
+
+// il primo treno ï¿½ quello a 20km o l'altro treno che si trova in stazione,
+// il secondo o in parcheggio o stazione
+// True se t1 ha prioritï¿½ piï¿½ alta
+// False altrimenti
+bool MainStation::ComparePriority(const Train *t1, const Train *t2) const
+{
+	if (t2->GetWaitTime() >= t2->getMaxWait())
+		return false;
+
+	if (t1->getType() > t2->getType())
+		return true;
+
+	return false;
+}
+
+int MainStation::GetEstimatedArrivalTime(const Train *t) const
+{
+	int position = t->getPosition();
+	int speed = t->getMaxSpeed();
+
+	// Il tempo minimo d'arrivo
+	// (se per esempio ha un treno davanti che va piï¿½ lento
+	// allora arriverï¿½ piï¿½ tardi ma comunque non prima del treno che o precede
+	int d_to_park = abs(distance_ - position) - 5;
+	int time_to_station = (d_to_park / speed) + PARK_TO_STATION_TIME;
+
+	return time_to_station;
+}
+
+vector<int> MainStation::TrackStatus(const Train *t) const
 {
 	/*
 	*
@@ -275,10 +369,10 @@ vector<int> MainStation::TrackStatus(const Train* t) const
 	*
 	*/
 	int verse = t->getVerse();
-	const vector<Train*>& trains = (verse == 0) ? parked_trains_east_ : parked_trains_weast_;
+	const vector<Train *> &trains = (verse == 0) ? parked_trains_east_ : parked_trains_weast_;
 
-	int wait_time_track_one{ 0 };
-	int wait_time_track_two{ 0 };
+	int wait_time_track_one{0};
+	int wait_time_track_two{0};
 
 	wait_time_track_one = tracks_state_[(2 * verse)];
 	wait_time_track_two = tracks_state_[1 + (2 * verse)];
@@ -291,112 +385,67 @@ vector<int> MainStation::TrackStatus(const Train* t) const
 			wait_time_track_two += trains[i]->GetTimeLeft();
 	}
 
-	// prime due posizioni attesa in muinuti del binario più veloce
+	// prime due posizioni attesa in muinuti del binario piï¿½ veloce
 	// e il numero di binario
 	//
-	// Ultime due il tempo binario più lento e numero
+	// Ultime due il tempo binario piï¿½ lento e numero
 	vector<int> status(4);
 	if (wait_time_track_one <= wait_time_track_two)
 	{
-		status[0] = wait_time_track_one; status[1] = (2 * verse);
-		status[2] = wait_time_track_two; status[3] = (1 + (2 * verse));
+		status[0] = wait_time_track_one;
+		status[1] = (2 * verse);
+		status[2] = wait_time_track_two;
+		status[3] = (1 + (2 * verse));
 	}
 	else
 	{
-		status[0] = wait_time_track_two; status[1] = (1 + (2 * verse));
-		status[2] = wait_time_track_one; status[3] = (2 * verse);
+		status[0] = wait_time_track_two;
+		status[1] = (1 + (2 * verse));
+		status[2] = wait_time_track_one;
+		status[3] = (2 * verse);
 	}
 
 	// max minuti attesa, binario
 	return status;
 }
 
-int MainStation::GetEstimatedArrivalTime(const Train* t) const
+bool operator==(const Station &s_one, const Station &s_two) { return s_one.GetName() == s_two.GetName(); }
+
+int TimeToFree(const list<const Train *> &trains_ahead, const Station &a)
 {
-	int position = t->getPosition();
-	int speed = t->getMaxSpeed();
+	int pos = abs(a.GetDistance() - trains_ahead.back()->getPosition());
 
-	// Il tempo minimo d'arrivo
-	// (se per esempio ha un treno davanti che va più lento
-	// allora arriverà più tardi ma comunque non prima del treno che o precede
-	int d_to_park = abs(distance_ - position) - 5;
-	int time_to_station = (d_to_park / speed) + PARK_TO_STATION_TIME;
-
-	return time_to_station;
-}
-
-// l'array parked_trains cresce ogni volta che si fa insert
-// Inserisce il treno nella lista e aggiorna direttamente il tempo dìattesa del treno
-void MainStation::AddParkedTrain(Train* t)
-{
-	/*
-	*
-	* capolinea/origine
-	*
-	*/
-	vector<Train*>& trains = parked_trains_east_;
-	trains = (t->getVerse() == 0) ? trains = parked_trains_east_ : trains = parked_trains_weast_;
-
-	int estimated_arrival = GetEstimatedArrivalTime(t);
-	// Controlla solo il binario più veloce
-	int track = TrackStatus(t)[1];
-	// Imposta subito il binario del treno
-	t->SetTrack(track);
-
-	for (; track < trains.size(); track += 2)
+	int s_km{0};
+	int f_km{5};
+	if (pos < 5)
 	{
-		// devo vedere se il tempo d'arrivo è < o > dei treni che lo confronto
-		if (ComparePriority(t, trains[track]) && estimated_arrival < trains[track]->GetTimeLeft())
-		{
-			trains.insert(trains.begin() + track, t);
-			break;
-		}
+		s_km = pos - 5;
 	}
-	trains.push_back(t);
-
-	/*
-	impostare il tempo d'attesa del treno appena aggiunto
-	*/
-	int wait_time{ 0 };
-	int i = TrackStatus(t)[1] % 2;
-	for (; i < track || i < trains.size(); i += 2)
-		if (estimated_arrival < trains[track]->GetTimeLeft() + 5)
-			wait_time += estimated_arrival - (trains[track]->GetTimeLeft() + 5);
-	t->SetWaitTime(wait_time);
-
-	// Aggiorno l'attesa per gli eventuali treni che sono stati spostati 
-	// a priorità più bassa
-	/*devo sapere l'orario d'arrivo in parcheggio del treno*/
-	int time_to_add = wait_time + 5;
-	if (track < trains.size())
-		for (; track < trains.size(); track += 2)
-		{
-			int prev_time = trains[track]->GetTimeLeft();
-			trains[track]->SetWaitTime(prev_time + time_to_add);
-		}
 	else
 	{
-		trains.push_back(t);
+		f_km = (pos - 5) + 5;
 	}
+
+	// nei 5km "veloci" utilizza la velociï¿½ del treno regionale
+	// cosi nel caso pessimo il treno aspettera del tempo in piï¿½
+	// ma i 10km saranno sempre risettati
+	int time = (s_km / 80) + (f_km / 160);
+
+	return time;
 }
 
-// il primo treno è quello a 20km o l'altro treno che si trova in stazione,
-// il secondo o in parcheggio o stazione
-// True se t1 ha priorità più alta
-// False altrimenti
-bool MainStation::ComparePriority(const Train* t1, const Train* t2) const
+std::string FormatTime(int min)
 {
-	if (t2->GetWaitTime() >= t2->getMaxWait())
-		return false;
+	int m = min % 60;
+	int h = min / 60;
+	int d = h / 24;
+	h -= d * 24;
 
-	if (t1->getType() > t2->getType())
-		return true;
+	string minute = (m < 10) ? "0" + to_string(m) : to_string(m);
+	string hour = (h < 10) ? "0" + to_string(h) : to_string(h);
+	string day = (d > 0) ? " Giorno +" + to_string(d) : "";
 
-	return false;
+	string time = hour + ":" + minute + day;
 
+	return time;
 }
-
-
-
-
-
