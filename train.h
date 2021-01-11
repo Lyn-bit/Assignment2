@@ -147,6 +147,7 @@ private:
 	int GlobalTime;				  //ora globale
 	int delay;					  //eventuale tempo di ritardo
 	int TimePassed;				  //tempo che è rimasto fermo
+	int firstTime; //primo orario
 	const int MAX_SPEED = 160;
 	const int MAX_WAIT = 20;
 };
@@ -229,6 +230,7 @@ private:
 	int GlobalTime;				  //ora globale
 	int delay;					  //eventuale tempo di ritardo
 	int TimePassed;				  //tempo che è rimasto fermo
+	int firstTime; //primo orario
 	const int MAX_SPEED = 300;
 	const int MAX_WAIT = 5;
 };
@@ -311,6 +313,7 @@ private:
 	int GlobalTime;				  //ora globale
 	int delay;					  //eventuale tempo di ritardo
 	int TimePassed;				  //tempo che è rimasto fermo
+	int firstTime; //primo orario
 	const int MAX_SPEED = 240;
 	const int MAX_WAIT = 15;
 };

@@ -4,7 +4,7 @@
 
 using namespace std;
 
-Train_High_Speed::Train_High_Speed(int numero, int direzione, int tipo, std::list<int> orari, const ReadFile* temp) : id{ numero }, verse{ direzione }, type{ tipo }, times{ orari }, speed{ 0 }, position{ 0 }, wait{ 0 }, track{ -1 }, Current{ nullptr }, file{ temp }, state{ "s" }, GlobalTime{ 0 }, delay{ 0 }, TimePassed{0}
+Train_High_Speed::Train_High_Speed(int numero, int direzione, int tipo, std::list<int> orari, const ReadFile* temp) : id{ numero }, verse{ direzione }, type{ tipo }, times{ orari }, speed{ 0 }, position{ 0 }, wait{ 0 }, track{ -1 }, Current{ nullptr }, file{ temp }, state{ "s" }, GlobalTime{ 0 }, delay{ 0 }, TimePassed{0}, firstTime{ times.front() }
 {
 }
 
@@ -256,73 +256,36 @@ pair<int, const Station *> Train_High_Speed::update()
     }
 
     //aggiorno velocità
-    if (((StationTemp->GetDistance() - position) <= 20 && verse == 0) || ((position - StationTemp->GetDistance()) <= 20 && verse == 1)) //controllo se il treno si trova a 20km dalla stazione
+    if (GlobalTime >= firstTime)
     {
-        if ((track < 0) && (state != "p")) //se il treno non ha un binario e non è nel parcheggio allora mando una richiesta di arrivo
+        if (((StationTemp->GetDistance() - position) <= 20 && verse == 0) || ((position - StationTemp->GetDistance()) <= 20 && verse == 1)) //controllo se il treno si trova a 20km dalla stazione
         {
-
-            if (!checkTrainAhead()) //se non ha un treno davanti
+            if ((track < 0) && (state != "p")) //se il treno non ha un binario e non è nel parcheggio allora mando una richiesta di arrivo
             {
-                if (((StationTemp->GetDistance() - position) <= 5 && verse == 0) || ((position - StationTemp->GetDistance()) <= 5 && verse == 1)) //controllo se il treno si trova a 5km dalla stazione
-                {
-                    if (state == "p") //se deve andare nel parcheggio, il treno si ferma perchè il parcheggio si trova a 5km dalla stazione
-                    {
-                        speed = 0;
-                    }
-                    else //altrimenti può andare ad 80km, velocità massima a 5 km dalla stazione
-                    {
-                        speed = 80;
-                    }
-                }
-                else
-                {
-                    speed = MAX_SPEED; //altrimenti può andare alla velocità massima
-                }
-            }
-            else //se ha un treno davanti
-            {
-                if (TrainTemp->getState() == "s") //controlla lo stato del treno davanti
-                {
-                    if (state == "s")
-                    {
-                        if (TrainTemp->getSpeed() >= MAX_SPEED)
-                        {
-                            speed = MAX_SPEED; //se vanno più veloci della velocità massima
-                        }
-                        else
-                        {
-                            TrainTemp->getSpeed(); //altrimenti possono andare alla stessa velocità
-                        }
-                    }
-                    else //se lo stato del treno è p
-                    {
-                        if (!(((StationTemp->GetDistance() - position) <= 5 && verse == 0) || ((position - StationTemp->GetDistance()) <= 5 && verse == 1))) //se non si trova a 5 km dalla stazione
-                        {
-                            if (TrainTemp->getSpeed() >= MAX_SPEED)
 
-                            {
-                                speed = MAX_SPEED; //se vanno più veloci della velocità massima
-                            }
-                            else
-                            {
-                                TrainTemp->getSpeed(); //altrimenti possono andare alla stessa velocità
-                            }
-                        }
-                        else //se si trova a 5km dalla stazione fermo e parcheggio il treno
+                if (!checkTrainAhead()) //se non ha un treno davanti
+                {
+                    if (((StationTemp->GetDistance() - position) <= 5 && verse == 0) || ((position - StationTemp->GetDistance()) <= 5 && verse == 1)) //controllo se il treno si trova a 5km dalla stazione
+                    {
+                        if (state == "p") //se deve andare nel parcheggio, il treno si ferma perchè il parcheggio si trova a 5km dalla stazione
                         {
                             speed = 0;
                         }
+                        else //altrimenti può andare ad 80km, velocità massima a 5 km dalla stazione
+                        {
+                            speed = 80;
+                        }
+                    }
+                    else
+                    {
+                        speed = MAX_SPEED; //altrimenti può andare alla velocità massima
                     }
                 }
-                else if (TrainTemp->getState() == "p") //se il treno davanti sta andando al parcheggio, controllo lo stato del treno attuale
+                else //se ha un treno davanti
                 {
-                    if (state == "p") //se sta andando al parcheggio
+                    if (TrainTemp->getState() == "s") //controlla lo stato del treno davanti
                     {
-                        if (TrainTemp->getSpeed() == 0) //controllo se la velocità del treno davanti è zero
-                        {
-                            speed = MAX_SPEED; //se la velocità del treno davanti è zero, vuol dire che è nel parcheggio
-                        }
-                        else
+                        if (state == "s")
                         {
                             if (TrainTemp->getSpeed() >= MAX_SPEED)
                             {
@@ -333,68 +296,107 @@ pair<int, const Station *> Train_High_Speed::update()
                                 TrainTemp->getSpeed(); //altrimenti possono andare alla stessa velocità
                             }
                         }
+                        else //se lo stato del treno è p
+                        {
+                            if (!(((StationTemp->GetDistance() - position) <= 5 && verse == 0) || ((position - StationTemp->GetDistance()) <= 5 && verse == 1))) //se non si trova a 5 km dalla stazione
+                            {
+                                if (TrainTemp->getSpeed() >= MAX_SPEED)
+
+                                {
+                                    speed = MAX_SPEED; //se vanno più veloci della velocità massima
+                                }
+                                else
+                                {
+                                    TrainTemp->getSpeed(); //altrimenti possono andare alla stessa velocità
+                                }
+                            }
+                            else //se si trova a 5km dalla stazione fermo e parcheggio il treno
+                            {
+                                speed = 0;
+                            }
+                        }
+                    }
+                    else if (TrainTemp->getState() == "p") //se il treno davanti sta andando al parcheggio, controllo lo stato del treno attuale
+                    {
+                        if (state == "p") //se sta andando al parcheggio
+                        {
+                            if (TrainTemp->getSpeed() == 0) //controllo se la velocità del treno davanti è zero
+                            {
+                                speed = MAX_SPEED; //se la velocità del treno davanti è zero, vuol dire che è nel parcheggio
+                            }
+                            else
+                            {
+                                if (TrainTemp->getSpeed() >= MAX_SPEED)
+                                {
+                                    speed = MAX_SPEED; //se vanno più veloci della velocità massima
+                                }
+                                else
+                                {
+                                    TrainTemp->getSpeed(); //altrimenti possono andare alla stessa velocità
+                                }
+                            }
+                        }
+                    }
+                }
+                return SendArrivalRequest(); //manda la richiesta di arrivo alla stazione
+            }
+            else if (state == "s") //se il treno ha già mandato una richiesta di arrivo controllo se sta andando in stazione
+            {
+                if (((StationTemp->GetDistance() - position) <= 5 && verse == 0) || ((position - StationTemp->GetDistance()) <= 5 && verse == 1)) //se si trova a 5 km dalla stazione
+                {
+                    speed = 80;
+                }
+                else if (checkTrainAhead()) //se ha un treno davanti controlla lo stato
+                {
+                    if (TrainTemp->getState() == "s") //se sta andando in stazione
+                    {
+                        if (TrainTemp->getSpeed() > MAX_SPEED) //se la velocità del treno davanti è maggiore della velocità massima di questo treno
+                        {
+                            speed = MAX_SPEED;
+                        }
+                        else
+                        {
+                            speed = TrainTemp->getSpeed();
+                        }
+                    }
+                    else //se il treno davanti sta andando nel parcheggio
+                    {
+                        if (TrainTemp->getSpeed() == 0) //se il treno davanti è nel parcheggio allora questo può andare alla velocità massima
+                        {
+                            speed = MAX_SPEED;
+                        }
+                        else if (TrainTemp->getSpeed() > MAX_SPEED)
+                        {
+                            speed = TrainTemp->getSpeed();
+                        }
+                        else
+                        {
+                            speed = MAX_SPEED;
+                        }
                     }
                 }
             }
-            return SendArrivalRequest(); //manda la richiesta di arrivo alla stazione
         }
-        else if (state == "s") //se il treno ha già mandato una richiesta di arrivo controllo se sta andando in stazione
+        else if (checkTrainAhead()) //se non si trova a 20km dalla stazione controlla se ha un treno davanti
         {
-            if (((StationTemp->GetDistance() - position) <= 5 && verse == 0) || ((position - StationTemp->GetDistance()) <= 5 && verse == 1)) //se si trova a 5 km dalla stazione
+            if (TrainTemp->getSpeed() > MAX_SPEED) //se il treno davanti è più veloce della velocità massima allora questo treno viaggia alla sua velocità massima
             {
-                speed = 80;
+                speed = MAX_SPEED;
             }
-            else if (checkTrainAhead()) //se ha un treno davanti controlla lo stato
+            else
             {
-                if (TrainTemp->getState() == "s") //se sta andando in stazione
-                {
-                    if (TrainTemp->getSpeed() > MAX_SPEED) //se la velocità del treno davanti è maggiore della velocità massima di questo treno
-                    {
-                        speed = MAX_SPEED;
-                    }
-                    else
-                    {
-                        speed = TrainTemp->getSpeed();
-                    }
-                }
-                else //se il treno davanti sta andando nel parcheggio
-                {
-                    if (TrainTemp->getSpeed() == 0) //se il treno davanti è nel parcheggio allora questo può andare alla velocità massima
-                    {
-                        speed = MAX_SPEED;
-                    }
-                    else if (TrainTemp->getSpeed() > MAX_SPEED)
-                    {
-                        speed = TrainTemp->getSpeed();
-                    }
-                    else
-                    {
-                        speed = MAX_SPEED;
-                    }
-                }
+                speed = TrainTemp->getSpeed(); //altrimenti viaggia alla stessa velocità del treno
             }
         }
-    }
-    else if (checkTrainAhead()) //se non si trova a 20km dalla stazione controlla se ha un treno davanti
-    {
-        if (TrainTemp->getSpeed() > MAX_SPEED) //se il treno davanti è più veloce della velocità massima allora questo treno viaggia alla sua velocità massima
+        else if (!checkTrainAhead()) //se non ha un treno davanti allora può andare alla velocità massima
         {
             speed = MAX_SPEED;
         }
-        else
+        else if (StationTemp->GetDistance() == position) //se il treno arriva alla stazione, allora si ferma
         {
-            speed = TrainTemp->getSpeed(); //altrimenti viaggia alla stessa velocità del treno
+            speed = 0;
         }
     }
-    else if (!checkTrainAhead()) //se non ha un treno davanti allora può andare alla velocità massima
-    {
-        speed = MAX_SPEED;
-    }
-    else if (StationTemp->GetDistance() == position) //se il treno arriva alla stazione, allora si ferma
-    {
-        speed = 0;
-    }
-
     //aggiorno tempo
     if (wait > 0) //controllo se c'è del tempo da aggiornare
     {
