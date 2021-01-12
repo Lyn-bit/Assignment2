@@ -1,3 +1,5 @@
+//Ciccone Davide
+
 #ifndef train_h
 #define train_h
 
@@ -18,11 +20,7 @@ public:
 	virtual int getSpeed() const = 0;			 //metodo che ritorna la velocità del treno
 	virtual int getPosition() const = 0;		 //metodo che ritorna la posizione del treno
 
-	//Stazione Attuale
-	//virtual const Station *Current() = 0;
-	//ReadFile
-	//virtual const ReadFile *file() = 0;
-
+	//metodo che ritorna il tempo globale
 	virtual int getTime() = 0;
 
 	//metodo che controlla se c'è un ritardo nel tempo
@@ -84,10 +82,7 @@ public:
 	int getSpeed() const override;			  //metodo che ritorna la velocità del treno
 	int getPosition() const override;		  //metodo che ritorna la posizione del treno
 
-	//Stazione Attuale
-	//const Station *Current() override;
-	//ReadFile
-	//const ReadFile *file() override;
+	//metodo che ritorna il tempo globale
 	int getTime() override;
 	//metodo che controlla se c'è un ritardo nel tempo
 	bool checkDelay() override;
@@ -167,10 +162,7 @@ public:
 	int getSpeed() const override;			  //metodo che ritorna la velocità del treno
 	int getPosition() const override;		  //metodo che ritorna la posizione del treno
 
-	//Stazione Attuale
-	//const Station *Current() override;
-	//ReadFile
-	//const ReadFile *file() override;
+	//metodo che ritorna il tempo globale
 	int getTime() override;
 	//metodo che controlla se c'è un ritardo nel tempo
 	bool checkDelay() override;
@@ -250,10 +242,7 @@ public:
 	int getSpeed() const override;			  //metodo che ritorna la velocità del treno
 	int getPosition() const override;		  //metodo che ritorna la posizione del treno
 
-	//Stazione Attuale
-	//const Station *Current() override;
-	//ReadFile
-	//const ReadFile *file() override;
+	//metodo che ritorna il tempo globale
 	int getTime() override;
 	//metodo che controlla se c'è un ritardo nel tempo
 	bool checkDelay() override;

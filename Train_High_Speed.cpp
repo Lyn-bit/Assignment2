@@ -86,11 +86,11 @@ const Station *Train_High_Speed::getCurrentStation() const
 const Station *Train_High_Speed::getNextStation()
 {
     const Station *temp = file->get_Last_Station();
-    if (verse == 1 && position == 0 && Current == nullptr)
+    if (verse == 1 && position == 0 && Current == nullptr) //se il treno parte dal capolinea allora do alla posizione come valore la distanza del capolinea dalla prima stazione
     {
         position = temp->GetDistance();
     }
-    if (Current == nullptr && ((verse == 0 && position <= 0) || (verse == 1 && position >= temp->GetDistance())))
+    if (Current == nullptr && ((verse == 0 && position <= 0) || (verse == 1 && position >= temp->GetDistance()))) //se il puntatore current è nullptr e il treno deve ancora partire allora inizializzo current e restituisco la prossima stazione
     {
         if (verse == 0)
         {
@@ -104,7 +104,7 @@ const Station *Train_High_Speed::getNextStation()
         }
     }
 
-    else if (verse == 0)
+    else if (verse == 0) // altrimenti in base al verso restituisco la prossima stazione
     {
         /*
         if (file->nextStation(Current) == nullptr)
@@ -216,6 +216,7 @@ const Train *Train_High_Speed::getTrainAhead() const
     }
 }
 
+//metodo che ritorna il tempo globale
 int Train_High_Speed::getTime()
 {
     return GlobalTime;
