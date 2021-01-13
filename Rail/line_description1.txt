@@ -1,0 +1,7 @@
+Roma
+Milano 0 300
+Torino 0 400
+Parigi 1 800
+Francoforte 0 1250
+Berlino 1 1400
+Londra 0 1950

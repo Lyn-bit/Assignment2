@@ -1,0 +1,7 @@
+Venezia
+Mestre 0 25
+Padova 0 50
+Vicenza 1 80
+Verona 1 150
+Milano 0 250
+Milano_Centrale 1 280
